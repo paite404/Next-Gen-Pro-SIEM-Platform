@@ -1,0 +1,2249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next Gen Pro — Network Security & SIEM Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;500;600;700&display=swap');
+        :root {
+            --bg0: #050912;
+            --bg1: #080e1c;
+            --bg2: #0c1425;
+            --bg3: #101b30;
+            --bg4: #16243d;
+            --brd: #1a3058;
+            --brd2: #234070;
+            --txt1: #d4e4f7;
+            --txt2: #8ba8c8;
+            --txt3: #4d6a87;
+            --blue: #2196f3;
+            --blue2: #42a5f5;
+            --cyan: #00bcd4;
+            --green: #00e676;
+            --green2: #26a69a;
+            --red: #f44336;
+            --orange: #ff9800;
+            --purple: #9c27b0;
+            --yellow: #ffeb3b;
+            --glow-blue: rgba(33,150,243,0.35);
+            --glow-green: rgba(0,230,118,0.25);
+            --glow-red: rgba(244,67,54,0.3);
+            --glow-cyan: rgba(0,188,212,0.25);
+            --r: 10px;
+            --r2: 6px;
+            --trans: all 0.25s cubic-bezier(0.4,0,0.2,1);
+            --font-mono: 'Share Tech Mono', monospace;
+            --font-ui: 'Exo 2', sans-serif;
+            --font-head: 'Rajdhani', sans-serif;
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:var(--font-ui); background:var(--bg0); color:var(--txt1); min-height:100vh; overflow-x:hidden; }
+        ::-webkit-scrollbar { width:5px; height:5px; }
+        ::-webkit-scrollbar-track { background:var(--bg1); }
+        ::-webkit-scrollbar-thumb { background:var(--brd2); border-radius:3px; }
+        ::-webkit-scrollbar-thumb:hover { background:var(--blue); }
+
+        /* ── LOGIN ── */
+        .login-screen {
+            position:fixed; inset:0; z-index:9000;
+            display:flex; align-items:center; justify-content:center;
+            background:
+                radial-gradient(ellipse 80% 60% at 50% -20%, rgba(33,150,243,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 50% 110%, rgba(0,188,212,0.08) 0%, transparent 60%),
+                var(--bg0);
+        }
+        .login-screen::before {
+            content:''; position:absolute; inset:0;
+            background-image:
+                linear-gradient(rgba(33,150,243,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(33,150,243,0.03) 1px, transparent 1px);
+            background-size:40px 40px;
+            animation:gridScroll 20s linear infinite;
+        }
+        @keyframes gridScroll { to { background-position:40px 40px; } }
+        .login-box {
+            position:relative; z-index:1;
+            background:linear-gradient(145deg, var(--bg2), var(--bg1));
+            border:1px solid var(--brd);
+            border-radius:16px;
+            padding:48px 44px;
+            width:100%; max-width:420px;
+            box-shadow:0 0 60px rgba(33,150,243,0.08), 0 20px 60px rgba(0,0,0,0.5);
+            animation:loginReveal 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
+        }
+        @keyframes loginReveal { from { opacity:0; transform:scale(0.9) translateY(30px); } to { opacity:1; transform:scale(1) translateY(0); } }
+
+        /* Ghost head SVG */
+        .ghost-head {
+            display:flex; justify-content:center; margin-bottom:24px;
+        }
+        .ghost-svg { filter:drop-shadow(0 0 20px rgba(33,150,243,0.5)); animation:ghostFloat 3s ease-in-out infinite; }
+        @keyframes ghostFloat { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
+
+        .login-title { text-align:center; margin-bottom:32px; }
+        .login-title h1 { font-family:var(--font-head); font-size:32px; font-weight:700; letter-spacing:2px;
+            background:linear-gradient(135deg,var(--blue),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .login-title p { color:var(--txt3); font-size:13px; margin-top:4px; }
+
+        .form-group { margin-bottom:18px; }
+        .form-group label { display:block; font-size:12px; font-weight:600; color:var(--txt2); margin-bottom:6px; letter-spacing:1px; text-transform:uppercase; }
+        .form-input {
+            width:100%; padding:11px 14px; border-radius:var(--r2);
+            border:1px solid var(--brd); background:var(--bg0);
+            color:var(--txt1); font-family:var(--font-ui); font-size:14px;
+            transition:var(--trans); outline:none;
+        }
+        .form-input:focus { border-color:var(--blue); box-shadow:0 0 0 3px var(--glow-blue); }
+        .form-input::placeholder { color:var(--txt3); }
+
+        .btn {
+            display:inline-flex; align-items:center; justify-content:center; gap:8px;
+            padding:10px 20px; border-radius:var(--r2); border:1px solid transparent;
+            font-family:var(--font-ui); font-size:13px; font-weight:600; cursor:pointer;
+            transition:var(--trans); text-decoration:none; letter-spacing:0.5px;
+        }
+        .btn-primary {
+            background:linear-gradient(135deg,var(--blue),var(--cyan)); color:#fff;
+            border:none; width:100%; padding:14px; font-size:15px;
+            box-shadow:0 4px 20px rgba(33,150,243,0.3);
+        }
+        .btn-primary:hover { opacity:0.88; transform:translateY(-1px); box-shadow:0 8px 30px rgba(33,150,243,0.4); }
+        .btn-secondary { background:var(--bg3); color:var(--txt1); border-color:var(--brd); }
+        .btn-secondary:hover { background:var(--bg4); border-color:var(--blue); }
+        .btn-danger { background:rgba(244,67,54,0.15); color:var(--red); border:1px solid rgba(244,67,54,0.4); }
+        .btn-danger:hover { background:rgba(244,67,54,0.25); }
+        .btn-success { background:rgba(0,230,118,0.12); color:var(--green); border:1px solid rgba(0,230,118,0.3); }
+        .btn-success:hover { background:rgba(0,230,118,0.2); }
+        .btn-warning { background:rgba(255,152,0,0.12); color:var(--orange); border:1px solid rgba(255,152,0,0.3); }
+        .btn-warning:hover { background:rgba(255,152,0,0.2); }
+        .btn-sm { padding:5px 12px; font-size:12px; }
+        .btn-icon { padding:7px; min-width:34px; }
+        .btn-full { width:100%; }
+
+        /* ── APP LAYOUT ── */
+        .app { display:flex; min-height:100vh; }
+        .sidebar {
+            width:256px; background:var(--bg1); border-right:1px solid var(--brd);
+            display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:100;
+        }
+        .sidebar-header {
+            padding:18px 20px; border-bottom:1px solid var(--brd);
+            display:flex; align-items:center; gap:10px;
+        }
+        .logo-icon {
+            width:36px; height:36px; border-radius:8px;
+            background:linear-gradient(135deg,var(--blue),var(--cyan));
+            display:flex; align-items:center; justify-content:center;
+            font-size:16px; color:#fff; box-shadow:0 0 16px var(--glow-blue);
+        }
+        .sidebar-header h2 { font-family:var(--font-head); font-size:18px; font-weight:700; letter-spacing:1.5px;
+            background:linear-gradient(135deg,var(--blue),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .sidebar-nav { flex:1; padding:10px; overflow-y:auto; }
+        .nav-section { margin-bottom:6px; }
+        .nav-section-title { padding:8px 10px; font-size:10px; text-transform:uppercase; letter-spacing:1.5px; color:var(--txt3); font-weight:700; }
+        .nav-item {
+            display:flex; align-items:center; gap:10px; padding:9px 10px;
+            border-radius:var(--r2); cursor:pointer; transition:var(--trans);
+            color:var(--txt2); font-size:13px; font-weight:500; position:relative;
+        }
+        .nav-item:hover { background:var(--bg3); color:var(--txt1); }
+        .nav-item.active {
+            background:linear-gradient(90deg, rgba(33,150,243,0.15), rgba(0,188,212,0.08));
+            color:var(--blue2); border-left:2px solid var(--blue);
+        }
+        .nav-item i { width:18px; text-align:center; font-size:14px; }
+        .nav-badge {
+            margin-left:auto; background:var(--red); color:#fff;
+            font-size:10px; padding:2px 6px; border-radius:10px; font-weight:700; min-width:18px; text-align:center;
+        }
+        .sidebar-footer { padding:12px; border-top:1px solid var(--brd); }
+        .user-info { display:flex; align-items:center; gap:10px; padding:8px; border-radius:var(--r2); }
+        .user-avatar {
+            width:32px; height:32px; border-radius:8px;
+            background:linear-gradient(135deg,var(--blue),var(--cyan));
+            display:flex; align-items:center; justify-content:center;
+            color:#fff; font-weight:700; font-size:14px; font-family:var(--font-head);
+        }
+        .user-name { font-size:13px; font-weight:600; }
+        .user-role { font-size:10px; color:var(--txt3); letter-spacing:0.5px; }
+        .conn-indicator { display:flex; align-items:center; gap:6px; padding:6px 10px; margin-bottom:6px;
+            background:var(--bg3); border-radius:var(--r2); border:1px solid var(--brd); font-size:11px; color:var(--txt2); }
+        .conn-indicator .dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+        .dot-green { background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse 2s infinite; }
+        .dot-red { background:var(--red); }
+        .dot-orange { background:var(--orange); box-shadow:0 0 8px var(--orange); }
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+        .main-content { flex:1; margin-left:256px; display:flex; flex-direction:column; }
+        .topbar {
+            padding:13px 28px; border-bottom:1px solid var(--brd);
+            display:flex; align-items:center; justify-content:space-between;
+            background:linear-gradient(90deg, var(--bg1), var(--bg2));
+            position:sticky; top:0; z-index:50; backdrop-filter:blur(10px);
+        }
+        .topbar-title { font-family:var(--font-head); font-size:20px; font-weight:700; letter-spacing:1px; }
+        .topbar-actions { display:flex; align-items:center; gap:10px; }
+        .router-select-wrap { display:flex; align-items:center; gap:8px; padding:7px 12px;
+            border-radius:var(--r2); background:var(--bg3); border:1px solid var(--brd); font-size:12px; color:var(--txt2); }
+        .router-select-wrap select { background:transparent; border:none; color:var(--txt1); font-size:12px;
+            outline:none; cursor:pointer; font-family:var(--font-ui); }
+        .router-select-wrap select option { background:var(--bg3); }
+        .conn-status-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 12px;
+            border-radius:20px; font-size:11px; font-weight:600; letter-spacing:0.5px; }
+        .conn-status-badge.online { background:rgba(0,230,118,0.12); color:var(--green); border:1px solid rgba(0,230,118,0.3); }
+        .conn-status-badge.offline { background:rgba(100,116,139,0.1); color:var(--txt3); border:1px solid var(--brd); }
+
+        .page-content { padding:22px 28px; flex:1; }
+
+        /* ── CARDS ── */
+        .card { background:linear-gradient(145deg, var(--bg2), var(--bg1)); border:1px solid var(--brd); border-radius:var(--r); overflow:hidden; }
+        .card-header { padding:14px 18px; border-bottom:1px solid var(--brd); display:flex; align-items:center; justify-content:space-between; }
+        .card-title { font-family:var(--font-head); font-size:14px; font-weight:600; letter-spacing:0.5px; display:flex; align-items:center; gap:8px; }
+        .card-title i { color:var(--blue); }
+        .card-body { padding:18px; }
+        .card-body.no-pad { padding:0; }
+
+        /* ── STATS ── */
+        .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:20px; }
+        .stat-card {
+            background:linear-gradient(145deg, var(--bg2), var(--bg1)); border:1px solid var(--brd);
+            border-radius:var(--r); padding:18px; transition:var(--trans); cursor:default;
+            position:relative; overflow:hidden;
+        }
+        .stat-card::before { content:''; position:absolute; top:0; right:0; width:60px; height:60px;
+            border-radius:0 0 0 100%; opacity:0.06; }
+        .stat-card.blue::before { background:var(--blue); }
+        .stat-card.green::before { background:var(--green); }
+        .stat-card.red::before { background:var(--red); }
+        .stat-card.orange::before { background:var(--orange); }
+        .stat-card.cyan::before { background:var(--cyan); }
+        .stat-card:hover { border-color:var(--brd2); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.3); }
+        .stat-icon { width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; margin-bottom:12px; }
+        .stat-icon.blue { background:rgba(33,150,243,0.12); color:var(--blue); }
+        .stat-icon.green { background:rgba(0,230,118,0.1); color:var(--green); }
+        .stat-icon.red { background:rgba(244,67,54,0.1); color:var(--red); }
+        .stat-icon.orange { background:rgba(255,152,0,0.1); color:var(--orange); }
+        .stat-icon.cyan { background:rgba(0,188,212,0.1); color:var(--cyan); }
+        .stat-value { font-family:var(--font-head); font-size:30px; font-weight:700; margin-bottom:2px; }
+        .stat-label { font-size:12px; color:var(--txt3); letter-spacing:0.3px; }
+        .stat-change { font-size:11px; margin-top:6px; }
+        .stat-change.up { color:var(--green); }
+        .stat-change.down { color:var(--red); }
+
+        /* ── GRIDS ── */
+        .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+        .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; }
+        .mb-18 { margin-bottom:18px; }
+        .mb-20 { margin-bottom:20px; }
+        .mt-16 { margin-top:16px; }
+
+        /* ── TABLE ── */
+        .data-table { width:100%; border-collapse:collapse; }
+        .data-table th { text-align:left; padding:11px 14px; font-size:11px; text-transform:uppercase;
+            letter-spacing:0.8px; color:var(--txt3); font-weight:700; border-bottom:1px solid var(--brd);
+            background:rgba(0,0,0,0.2); font-family:var(--font-head); }
+        .data-table td { padding:10px 14px; font-size:13px; border-bottom:1px solid rgba(26,48,88,0.4); color:var(--txt2); }
+        .data-table tr:hover td { background:rgba(33,150,243,0.04); }
+        .data-table tr:last-child td { border-bottom:none; }
+
+        /* ── BADGES ── */
+        .badge { display:inline-flex; align-items:center; gap:4px; padding:2px 9px; border-radius:20px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+        .badge-success { background:rgba(0,230,118,0.12); color:var(--green); border:1px solid rgba(0,230,118,0.3); }
+        .badge-danger { background:rgba(244,67,54,0.1); color:var(--red); border:1px solid rgba(244,67,54,0.3); }
+        .badge-warning { background:rgba(255,152,0,0.1); color:var(--orange); border:1px solid rgba(255,152,0,0.3); }
+        .badge-info { background:rgba(33,150,243,0.1); color:var(--blue2); border:1px solid rgba(33,150,243,0.3); }
+        .badge-muted { background:rgba(100,116,139,0.1); color:var(--txt3); border:1px solid var(--brd); }
+        .badge-cyan { background:rgba(0,188,212,0.1); color:var(--cyan); border:1px solid rgba(0,188,212,0.3); }
+
+        /* ── ALERTS ── */
+        .alert-item { display:flex; align-items:flex-start; gap:12px; padding:12px 16px; border-bottom:1px solid rgba(26,48,88,0.3); transition:var(--trans); }
+        .alert-item:hover { background:rgba(33,150,243,0.04); }
+        .alert-icon { width:34px; height:34px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+        .alert-icon.critical { background:rgba(244,67,54,0.12); color:var(--red); }
+        .alert-icon.warning { background:rgba(255,152,0,0.1); color:var(--orange); }
+        .alert-icon.info { background:rgba(33,150,243,0.1); color:var(--blue); }
+        .alert-content { flex:1; min-width:0; }
+        .alert-title { font-size:13px; font-weight:600; margin-bottom:2px; }
+        .alert-desc { font-size:12px; color:var(--txt3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .alert-time { font-size:11px; color:var(--txt3); white-space:nowrap; }
+
+        /* ── TERMINAL ── */
+        .terminal { background:var(--bg0); border-radius:var(--r); overflow:hidden; border:1px solid var(--brd); }
+        .terminal-header { display:flex; align-items:center; gap:7px; padding:10px 14px; background:var(--bg2); border-bottom:1px solid var(--brd); }
+        .terminal-dot { width:11px; height:11px; border-radius:50%; }
+        .terminal-dot.red { background:#ff5f57; }
+        .terminal-dot.yellow { background:#febc2e; }
+        .terminal-dot.green { background:#28c840; }
+        .terminal-output { padding:16px; font-family:var(--font-mono); font-size:12.5px; line-height:1.7; overflow-y:auto; }
+        .terminal-input-row { display:flex; align-items:center; gap:10px; padding:10px 14px; border-top:1px solid var(--brd); background:var(--bg2); }
+        .terminal-input-row span { color:var(--cyan); font-family:var(--font-mono); }
+        .terminal-input-row input { flex:1; background:transparent; border:none; color:var(--txt1); font-family:var(--font-mono); font-size:13px; outline:none; }
+        .log-time { color:var(--txt3); }
+        .log-info { color:var(--blue2); }
+        .log-warn { color:var(--orange); }
+        .log-error { color:var(--red); }
+        .log-success { color:var(--green); }
+        .log-info i { color:var(--blue2); }
+        .log-error i { color:var(--red); }
+        .log-warn i { color:var(--orange); }
+        .log-success i { color:var(--green); }
+
+        /* ── MODAL ── */
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px);
+            display:flex; align-items:center; justify-content:center; z-index:1000; opacity:0; pointer-events:none; transition:var(--trans); }
+        .modal-overlay.active { opacity:1; pointer-events:all; }
+        .modal { background:linear-gradient(145deg, var(--bg3), var(--bg2)); border:1px solid var(--brd2);
+            border-radius:14px; padding:28px; width:90%; max-width:480px; position:relative;
+            box-shadow:0 0 60px rgba(0,0,0,0.5); animation:modalPop 0.25s cubic-bezier(0.34,1.56,0.64,1); }
+        @keyframes modalPop { from { transform:scale(0.9); opacity:0; } to { transform:scale(1); opacity:1; } }
+        .modal-title { font-family:var(--font-head); font-size:18px; font-weight:700; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+        .modal-close { position:absolute; top:14px; right:14px; background:none; border:none; color:var(--txt3); font-size:18px; cursor:pointer; }
+        .modal-close:hover { color:var(--txt1); }
+
+        /* ── TABS ── */
+        .tab-bar { display:flex; gap:2px; padding:3px; background:rgba(0,0,0,0.2); border-radius:var(--r2); margin-bottom:18px; }
+        .tab-item { padding:7px 16px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:600; color:var(--txt3); letter-spacing:0.5px; transition:var(--trans); }
+        .tab-item:hover { color:var(--txt1); }
+        .tab-item.active { background:linear-gradient(135deg,var(--blue),var(--cyan)); color:#fff; }
+
+        /* ── TOASTS ── */
+        .toast-container { position:fixed; top:18px; right:18px; z-index:2000; display:flex; flex-direction:column; gap:7px; }
+        .toast { padding:12px 18px; border-radius:var(--r2); font-size:13px; font-weight:600; max-width:370px;
+            box-shadow:0 8px 30px rgba(0,0,0,0.4); display:flex; align-items:center; gap:10px;
+            animation:slideInRight 0.3s ease, fadeOut 0.4s ease 3.2s forwards; }
+        .toast-success { background:rgba(0,60,30,0.95); color:#69f0ae; border:1px solid rgba(0,200,83,0.4); }
+        .toast-error { background:rgba(80,10,10,0.95); color:#ff8a80; border:1px solid rgba(244,67,54,0.4); }
+        .toast-info { background:rgba(10,25,60,0.95); color:#82b1ff; border:1px solid rgba(33,150,243,0.4); }
+        @keyframes slideInRight { from { transform:translateX(110%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+        @keyframes fadeOut { to { opacity:0; transform:translateX(60px); } }
+
+        /* ── MISC ── */
+        .empty-state { text-align:center; padding:48px 20px; color:var(--txt3); }
+        .empty-state i { font-size:36px; margin-bottom:14px; display:block; opacity:0.4; }
+        .empty-state h3 { font-size:15px; color:var(--txt2); margin-bottom:6px; }
+        .empty-state p { font-size:13px; }
+        .progress-bar { height:5px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+        .progress-fill { height:100%; border-radius:3px; transition:width 0.6s ease; }
+        .progress-fill.blue { background:var(--blue); }
+        .progress-fill.green { background:var(--green); }
+        .progress-fill.orange { background:var(--orange); }
+        .progress-fill.red { background:var(--red); }
+        .form-row { display:flex; gap:12px; }
+        .form-row .form-group { flex:1; }
+        .chart-container { position:relative; height:220px; }
+        .chart-container-tall { position:relative; height:280px; }
+        .spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(33,150,243,0.2);
+            border-top-color:var(--blue); border-radius:50%; animation:spin 0.8s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .fade-in { animation:fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        .hidden { display:none !important; }
+        code { font-family:var(--font-mono); font-size:12px; color:var(--cyan); }
+        .section-divider { border:none; border-top:1px solid var(--brd); margin:20px 0; }
+
+        /* SIEM Special */
+        .siem-metric { display:flex; align-items:center; justify-content:space-between; padding:10px 14px;
+            border-bottom:1px solid rgba(26,48,88,0.3); }
+        .siem-metric:last-child { border-bottom:none; }
+        .siem-metric-label { font-size:12px; color:var(--txt2); }
+        .siem-metric-value { font-family:var(--font-mono); font-size:14px; font-weight:700; }
+
+        .threat-bar { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(26,48,88,0.2); }
+        .threat-bar:last-child { border-bottom:none; }
+        .threat-bar-label { width:140px; font-size:12px; color:var(--txt2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .threat-bar-track { flex:1; height:6px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+        .threat-bar-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--blue),var(--cyan)); transition:width 0.8s ease; }
+        .threat-bar-count { width:32px; text-align:right; font-family:var(--font-mono); font-size:12px; color:var(--txt3); }
+
+        .active-user-row { display:flex; align-items:center; gap:12px; padding:10px 14px; border-bottom:1px solid rgba(26,48,88,0.3); }
+        .active-user-row:last-child { border-bottom:none; }
+        .active-user-avatar { width:30px; height:30px; border-radius:6px; background:linear-gradient(135deg,var(--blue),var(--cyan));
+            display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:#fff; flex-shrink:0; font-family:var(--font-head); }
+        .active-user-info { flex:1; }
+        .active-user-name { font-size:13px; font-weight:600; }
+        .active-user-detail { font-size:11px; color:var(--txt3); }
+
+        .hist-row { display:flex; align-items:center; gap:12px; padding:10px 14px; border-bottom:1px solid rgba(26,48,88,0.3); }
+        .hist-row:last-child { border-bottom:none; }
+
+        /* Scan radar */
+        .scan-radar { width:110px; height:110px; border-radius:50%; border:2px solid var(--blue); position:relative; margin:0 auto 18px; }
+        .scan-radar::before { content:''; position:absolute; inset:0; border-radius:50%;
+            background:conic-gradient(from 0deg, transparent 60%, rgba(33,150,243,0.3)); animation:radarSweep 2s linear infinite; }
+        .scan-radar::after { content:''; position:absolute; top:50%; left:50%; width:6px; height:6px;
+            background:var(--blue); border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 10px var(--blue); }
+        @keyframes radarSweep { to { transform:rotate(360deg); } }
+
+        .config-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px; }
+        .config-item { padding:14px; background:var(--bg3); border:1px solid var(--brd); border-radius:var(--r2);
+            cursor:pointer; text-align:center; transition:var(--trans); }
+        .config-item:hover { border-color:var(--blue); background:var(--bg4); }
+        .config-item i { font-size:22px; color:var(--blue); margin-bottom:8px; display:block; }
+        .config-item span { font-size:12px; font-weight:600; letter-spacing:0.3px; }
+
+        .disconnected-banner {
+            position:fixed; inset:0; z-index:8000;
+            background:rgba(5,9,18,0.92); backdrop-filter:blur(8px);
+            display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+            animation:fadeIn 0.3s ease;
+        }
+        .disconnected-banner i { font-size:64px; color:var(--red); animation:pulse 2s infinite; }
+        .disconnected-banner h2 { font-family:var(--font-head); font-size:28px; color:var(--red); letter-spacing:2px; }
+        .disconnected-banner p { color:var(--txt2); font-size:14px; text-align:center; max-width:400px; }
+
+        @media (max-width:900px) {
+            .sidebar { transform:translateX(-100%); }
+            .sidebar.open { transform:translateX(0); }
+            .main-content { margin-left:0; }
+            .grid-2, .grid-3 { grid-template-columns:1fr; }
+            .stats-grid { grid-template-columns:repeat(2,1fr); }
+            .page-content { padding:14px; }
+            .topbar { padding:10px 14px; }
+        }
+
+        /* Neon divider line */
+        .neon-divider { height:1px; background:linear-gradient(90deg, transparent, var(--blue), var(--cyan), transparent); margin:16px 0; opacity:0.4; }
+    </style>
+</head>
+<body>
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div id="loginScreen" class="login-screen">
+    <div class="login-box">
+        <div class="ghost-head">
+            <svg class="ghost-svg" width="80" height="90" viewBox="0 0 80 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="ghostGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#2196f3"/>
+                        <stop offset="100%" stop-color="#00bcd4"/>
+                    </linearGradient>
+                    <filter id="ghostGlow">
+                        <feGaussianBlur stdDeviation="3" result="blur"/>
+                        <feComposite in="SourceGraphic" in2="blur"/>
+                    </filter>
+                </defs>
+                <!-- Body -->
+                <path d="M8 40 C8 20 18 6 40 6 C62 6 72 20 72 40 L72 78 L62 68 L52 78 L42 68 L32 78 L22 68 L12 78 Z"
+                      fill="url(#ghostGrad)" opacity="0.85" filter="url(#ghostGlow)"/>
+                <!-- Eyes -->
+                <circle cx="28" cy="38" r="8" fill="white"/>
+                <circle cx="52" cy="38" r="8" fill="white"/>
+                <circle cx="30" cy="40" r="4" fill="#050912"/>
+                <circle cx="54" cy="40" r="4" fill="#050912"/>
+                <!-- Eye shine -->
+                <circle cx="29" cy="37" r="1.5" fill="white" opacity="0.7"/>
+                <circle cx="53" cy="37" r="1.5" fill="white" opacity="0.7"/>
+                <!-- Signal waves -->
+                <path d="M36 16 Q40 12 44 16" stroke="white" stroke-width="1.5" fill="none" opacity="0.5" stroke-linecap="round"/>
+                <path d="M32 11 Q40 5 48 11" stroke="white" stroke-width="1.5" fill="none" opacity="0.3" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <div class="login-title">
+            <h1>NEXT GEN PRO</h1>
+            <p>Network Security Intelligence Platform</p>
+        </div>
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" class="form-input" id="loginUser" placeholder="Enter username" autocomplete="username">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" class="form-input" id="loginPass" placeholder="Enter password" autocomplete="current-password"
+                   onkeydown="if(event.key==='Enter')handleLogin()">
+        </div>
+        <button class="btn btn-primary" id="loginBtn" onclick="handleLogin()">
+            <i class="fas fa-shield-halved"></i> Authenticate
+        </button>
+    </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="appContainer" class="app hidden">
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-icon"><i class="fas fa-shield-halved"></i></div>
+            <h2>NEXT GEN PRO</h2>
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Overview</div>
+                <div class="nav-item active" onclick="navigateTo('dashboard')"><i class="fas fa-chart-line"></i> Dashboard</div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Network</div>
+                <div class="nav-item" onclick="navigateTo('scan')"><i class="fas fa-satellite-dish"></i> Router Discovery</div>
+                <div class="nav-item" onclick="navigateTo('devices')"><i class="fas fa-laptop"></i> Active Devices</div>
+                <div class="nav-item" onclick="navigateTo('portscan')"><i class="fas fa-door-open"></i> Port Scanner</div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Security</div>
+                <div class="nav-item" onclick="navigateTo('siem')"><i class="fas fa-eye"></i> SIEM Center</div>
+                                <div class="nav-item" onclick="navigateTo('firewall')"><i class="fas fa-fire"></i> Firewall</div>
+                <div class="nav-item" onclick="navigateTo('alerts')"><i class="fas fa-bell"></i> Alerts<span class="nav-badge hidden" id="alertBadge">0</span></div>
+                <div class="nav-item" onclick="navigateTo('logs')"><i class="fas fa-scroll"></i> Log Analyzer</div>
+                <div class="nav-item" onclick="navigateTo('blocked')"><i class="fas fa-ban"></i> Blocked Items</div>
+                <div class="nav-item" onclick="navigateTo('loginanalysis')"><i class="fas fa-user-clock"></i> Login Analysis</div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Administration</div>
+                <div class="nav-item" onclick="navigateTo('history')"><i class="fas fa-history"></i> Router History</div>
+                <div class="nav-item" onclick="navigateTo('config')"><i class="fas fa-cogs"></i> Router Config</div>
+                <div class="nav-item" onclick="navigateTo('terminal')"><i class="fas fa-terminal"></i> Console</div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">System</div>
+                <div class="nav-item" onclick="navigateTo('settings')"><i class="fas fa-user-cog"></i> Settings</div>
+            </div>
+        </div>
+        <div class="sidebar-footer">
+            <div class="conn-indicator" id="connIndicator">
+                <div class="dot dot-red" id="connDot"></div>
+                <span id="connLabel">Not connected</span>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div>
+                    <div class="user-name" id="userName">Admin</div>
+                    <div class="user-role">ADMINISTRATOR</div>
+                </div>
+                <button class="btn btn-icon btn-secondary" style="margin-left:auto" onclick="handleLogout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="topbar">
+            <button class="btn btn-icon btn-secondary" onclick="toggleSidebar()" style="display:none" id="mobileToggle"><i class="fas fa-bars"></i></button>
+            <div class="topbar-title" id="pageTitle">Dashboard</div>
+            <div class="topbar-actions">
+                <div id="connStatusBadge" class="conn-status-badge offline"><i class="fas fa-circle"></i> Disconnected</div>
+                <div class="router-select-wrap">
+                    <i class="fas fa-server" style="color:var(--blue);font-size:12px"></i>
+                    <select id="routerSelect" onchange="selectRouter(this.value)"><option value="">No Router</option></select>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="navigateTo('scan')"><i class="fas fa-plus"></i> Add Router</button>
+            </div>
+        </div>
+        <div class="page-content" id="pageContent"></div>
+    </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════
+   NEXT GEN PRO — Full Frontend Application
+   ════════════════════════════════════════════════════════ */
+const API = '';
+let currentPage = 'dashboard';
+let selectedRouter = null;
+let dashboardCharts = {};
+let siemCharts = {};
+let refreshInterval = null;
+let currentConfigSection = null;
+let isConnected = false;
+
+/* ── UTILS ─────────────────────────────────────────────── */
+function showToast(msg, type='info') {
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    const icons = { success:'check-circle', error:'times-circle', info:'info-circle' };
+    t.innerHTML = `<i class="fas fa-${icons[type]||'info-circle'}"></i> ${msg}`;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 3800);
+}
+
+async function apiCall(endpoint, options={}) {
+    const isCommand = endpoint.includes('/command');
+    const timeoutMs = isCommand ? 10000 : 20000;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const resp = await fetch(API + endpoint, {
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            ...options,
+            body: options.body ? JSON.stringify(options.body) : undefined,
+        });
+        clearTimeout(timer);
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || 'Request failed');
+        return data;
+    } catch(e) {
+        clearTimeout(timer);
+        const msg = e.name === 'AbortError' ? 'Request timed out' : e.message;
+        if (!endpoint.includes('/auth/status')) showToast(msg, 'error');
+        throw new Error(msg);
+    }
+}
+
+function timeAgo(d) {
+    if (!d) return 'Never';
+    const diff = (Date.now() - new Date(d).getTime()) / 1000;
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+    return Math.floor(diff/86400) + 'd ago';
+}
+
+function formatBytes(b) {
+    if (!b||b===0) return '0 B';
+    const k=1024, s=['B','KB','MB','GB','TB'];
+    const i=Math.floor(Math.log(b)/Math.log(k));
+    return (b/Math.pow(k,i)).toFixed(1)+' '+s[i];
+}
+
+function fmtDate(d) { if (!d) return '-'; return new Date(d).toLocaleString(); }
+
+/* ── AUTH ──────────────────────────────────────────────── */
+async function handleLogin() {
+    const btn = document.getElementById('loginBtn');
+    btn.innerHTML = '<span class="spinner"></span> Authenticating...';
+    btn.disabled = true;
+    try {
+        const data = await apiCall('/api/auth/login', { method:'POST',
+            body: { username:document.getElementById('loginUser').value, password:document.getElementById('loginPass').value } });
+        document.getElementById('userName').textContent = data.username;
+        document.getElementById('userAvatar').textContent = data.username[0].toUpperCase();
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('appContainer').classList.remove('hidden');
+        showToast('Welcome back, ' + data.username + '!', 'success');
+        navigateTo('dashboard');
+        startAutoRefresh();
+    } catch(e) { showToast('Authentication failed: ' + e.message, 'error'); }
+    btn.innerHTML = '<i class="fas fa-shield-halved"></i> Authenticate';
+    btn.disabled = false;
+}
+
+async function handleLogout() {
+    await apiCall('/api/auth/logout', { method:'POST' }).catch(()=>{});
+    stopAutoRefresh();
+    selectedRouter = null;
+    isConnected = false;
+    Object.values(dashboardCharts).forEach(c=>c&&c.destroy&&c.destroy());
+    Object.values(siemCharts).forEach(c=>c&&c.destroy&&c.destroy());
+    dashboardCharts = {}; siemCharts = {};
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('appContainer').classList.add('hidden');
+    showToast('Logged out', 'info');
+}
+
+/* ── NAVIGATION ────────────────────────────────────────── */
+function navigateTo(page) {
+    currentPage = page;
+    document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+    const map = { dashboard:0, scan:1, devices:2, portscan:3, siem:4, firewall:5, alerts:6, logs:7, blocked:8, loginanalysis:9, history:10, config:11, terminal:12, settings:13 };
+    const items = document.querySelectorAll('.nav-item');
+    if (map[page] !== undefined) items[map[page]]?.classList.add('active');
+    const titles = {
+        dashboard:'Dashboard', scan:'Router Discovery', devices:'Active Devices', portscan:'Port Scanner',
+        siem:'SIEM Center', firewall:'Firewall Control', alerts:'Security Alerts',
+        logs:'Log Analyzer', blocked:'Blocked Items', loginanalysis:'Login Analysis',
+        history:'Router History', config:'Router Configuration', terminal:'Command Console', settings:'Settings'
+    };
+    document.getElementById('pageTitle').textContent = titles[page] || page;
+    const renderers = {
+        dashboard:renderDashboard, scan:renderScan, devices:renderDevices, portscan:renderPortScan,
+        siem:renderSIEM, ddos:renderDDoS, firewall:renderFirewall, alerts:renderAlerts, logs:renderLogs,
+        blocked:renderBlocked, loginanalysis:renderLoginAnalysis,
+        history:renderHistory, config:renderConfig, terminal:renderTerminal, settings:renderSettings
+    };
+    (renderers[page]||renderDashboard)();
+    document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+function selectRouter(id) {
+    selectedRouter = id ? parseInt(id) : null;
+    updateConnStatus();
+    if (currentPage === 'dashboard') loadDashboard();
+    else if (currentPage === 'devices') { loadDevices(); loadWifiClients(); }
+    else if (currentPage === 'firewall') loadFirewallRules();
+    else if (currentPage === 'logs') loadLogs();
+    else if (currentPage === 'config') loadConfig(currentConfigSection);
+    else if (currentPage === 'siem') loadSIEMStats();
+}
+
+function updateConnStatus() {
+    const connected = selectedRouter && isConnected;
+    const badge = document.getElementById('connStatusBadge');
+    const dot = document.getElementById('connDot');
+    const label = document.getElementById('connLabel');
+    if (connected) {
+        badge.className = 'conn-status-badge online';
+        badge.innerHTML = '<i class="fas fa-circle"></i> Connected';
+        dot.className = 'dot dot-green';
+        label.textContent = 'Router active';
+    } else if (selectedRouter) {
+        badge.className = 'conn-status-badge';
+        badge.style.cssText = 'background:rgba(255,152,0,0.1);color:var(--orange);border:1px solid rgba(255,152,0,0.3)';
+        badge.innerHTML = '<i class="fas fa-circle"></i> Reconnecting';
+        dot.className = 'dot dot-orange';
+        label.textContent = 'Reconnecting...';
+    } else {
+        badge.className = 'conn-status-badge offline';
+        badge.innerHTML = '<i class="fas fa-circle"></i> Disconnected';
+        dot.className = 'dot dot-red';
+        label.textContent = 'Not connected';
+    }
+}
+
+/* ── AUTO REFRESH ──────────────────────────────────────── */
+function startAutoRefresh() {
+    if (refreshInterval) clearInterval(refreshInterval);
+    refreshInterval = setInterval(() => {
+        if (document.visibilityState === 'hidden') return; // don't burn CPU when tab not visible
+        if (currentPage === 'dashboard') loadDashboard();
+        else if (currentPage === 'siem') loadSIEMStats();
+        loadAlertCount();
+        checkConnection();
+    }, 3000); // 3s — snappy but not hammering
+}
+function stopAutoRefresh() { if (refreshInterval) { clearInterval(refreshInterval); refreshInterval = null; } }
+
+async function checkConnection() {
+    if (!selectedRouter) return;
+    try {
+        const data = await apiCall(`/api/router/${selectedRouter}/status`);
+        isConnected = data.status === 'connected';
+        updateConnStatus();
+    } catch(e) { isConnected = false; updateConnStatus(); }
+}
+
+async function loadAlertCount() {
+    try {
+        const data = await apiCall('/api/alerts');
+        const unresolved = data.alerts.filter(a=>!a.is_resolved).length;
+        const badge = document.getElementById('alertBadge');
+        badge.textContent = unresolved;
+        badge.classList.toggle('hidden', unresolved === 0);
+    } catch(e) {}
+}
+
+/* ══════════════════════════════════════════════════════════
+   DASHBOARD
+   ══════════════════════════════════════════════════════════ */
+function renderDashboard() {
+    document.getElementById('pageContent').innerHTML = `
+    <div class="fade-in">
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-server"></i></div><div class="stat-value" id="statRouters">—</div><div class="stat-label">Connected Routers</div></div>
+            <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-laptop"></i></div><div class="stat-value" id="statDevices">—</div><div class="stat-label">Total Devices</div></div>
+            <div class="stat-card red"><div class="stat-icon red"><i class="fas fa-skull-crossbones"></i></div><div class="stat-value" id="statCritical">—</div><div class="stat-label">Critical Alerts</div></div>
+            <div class="stat-card orange"><div class="stat-icon orange"><i class="fas fa-triangle-exclamation"></i></div><div class="stat-value" id="statWarnings">—</div><div class="stat-label">Warnings</div></div>
+            <div class="stat-card cyan"><div class="stat-icon cyan"><i class="fas fa-eye"></i></div><div class="stat-value" id="statSiem">—</div><div class="stat-label">SIEM Events (24h)</div></div>
+        </div>
+        <div class="grid-2 mb-20">
+            <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-chart-area"></i> Network Traffic</span></div><div class="card-body"><div class="chart-container"><canvas id="trafficChart"></canvas></div></div></div>
+            <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-gauge-high"></i> System Health</span></div><div class="card-body"><div class="chart-container"><canvas id="healthChart"></canvas></div></div></div>
+        </div>
+        <div class="grid-2 mb-20">
+            <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-bell"></i> Recent Alerts</span><button class="btn btn-secondary btn-sm" onclick="navigateTo('alerts')">View All</button></div><div class="card-body no-pad" id="recentAlerts"><div class="empty-state"><i class="fas fa-check-circle"></i><h3>All Clear</h3><p>No active threats detected</p></div></div></div>
+            <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-server"></i> Router Status</span><button class="btn btn-secondary btn-sm" onclick="navigateTo('scan')">Discover</button></div><div class="card-body no-pad" id="routerList"><div class="empty-state"><i class="fas fa-wifi"></i><h3>No routers connected</h3><p>Scan your network to discover MikroTik routers</p></div></div></div>
+        </div>
+    </div>`;
+    loadDashboard();
+}
+
+async function loadDashboard() {
+    try {
+        const [data, siem] = await Promise.all([
+            apiCall('/api/dashboard'),
+            apiCall('/api/siem/stats').catch(()=>({recent_24h:0, critical:0, warning:0}))
+        ]);
+        // Stats
+        document.getElementById('statRouters').textContent = data.connected_routers ?? '0';
+        document.getElementById('statDevices').textContent = data.total_devices ?? '0';
+        document.getElementById('statCritical').textContent = data.critical_alerts ?? '0';
+        document.getElementById('statWarnings').textContent = data.warning_alerts ?? '0';
+        document.getElementById('statSiem').textContent = siem.recent_24h ?? 0;
+
+        isConnected = data.connected_routers > 0;
+        updateConnStatus();
+
+        // Router select dropdown
+        const sel = document.getElementById('routerSelect');
+        if (sel) {
+            sel.innerHTML = '<option value="">Select Router</option>';
+            data.routers.forEach(r => sel.innerHTML += `<option value="${r.id}" ${selectedRouter==r.id?'selected':''}>${r.name} (${r.ip})</option>`);
+        }
+
+        // Recent alerts panel
+        const aDiv = document.getElementById('recentAlerts');
+        if (aDiv && data.recent_alerts && data.recent_alerts.length > 0) {
+            aDiv.innerHTML = data.recent_alerts.map(a=>`
+                <div class="alert-item">
+                    <div class="alert-icon ${(a.severity||'').toLowerCase()}"><i class="fas fa-${a.severity==='CRITICAL'?'skull-crossbones':'triangle-exclamation'}"></i></div>
+                    <div class="alert-content"><div class="alert-title">${a.title}</div><div class="alert-desc">${a.description||''}</div></div>
+                    <div class="alert-time">${timeAgo(a.timestamp)}</div>
+                </div>`).join('');
+        } else if (aDiv && (!data.recent_alerts || data.recent_alerts.length === 0)) {
+            aDiv.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><h3>All Clear</h3><p>No active threats detected</p></div>';
+        }
+
+        // Router status panel
+        const rDiv = document.getElementById('routerList');
+        if (rDiv && data.routers.length > 0) {
+            rDiv.innerHTML = `<table class="data-table"><thead><tr>
+                <th>Name</th><th>IP</th><th>Status</th><th>CPU</th><th>Memory</th><th>Uptime</th><th>Version</th>
+             </thead><tbody>${
+                data.routers.map(r => {
+                    const cpu = r.cpu_load || 0;
+                    const memPct = r.memory_used || 0;
+                    const memUsedMB = r.memory_used_mb ? r.memory_used_mb + ' MB' : memPct + '%';
+                    const memTotalMB = r.memory_total_mb ? ' / ' + r.memory_total_mb + ' MB' : '';
+                    return `<tr>
+                        <td style="font-weight:600;color:var(--txt1)">${r.name||'Unknown'}</td>
+                        <td><code>${r.ip}</code></td>
+                        <td><span class="badge ${r.status==='connected'?'badge-success':'badge-muted'}">${r.status}</span></td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:6px">
+                                <div class="progress-bar" style="width:60px"><div class="progress-fill ${cpu>80?'red':cpu>50?'orange':'green'}" style="width:${cpu}%"></div></div>
+                                <span style="font-family:var(--font-mono);font-size:12px">${cpu}%</span>
+                            </div>
+                            <div style="font-size:10px;color:var(--txt3)">${100-cpu}% free${r.cpu_count?' · '+r.cpu_count+' core':''}</div>
+                        </td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:6px">
+                                <div class="progress-bar" style="width:60px"><div class="progress-fill ${memPct>80?'red':memPct>50?'orange':'green'}" style="width:${memPct}%"></div></div>
+                                <span style="font-family:var(--font-mono);font-size:12px">${memPct}%</span>
+                            </div>
+                            <div style="font-size:10px;color:var(--txt3)">${memUsedMB}${memTotalMB}</div>
+                        </td>
+                        <td style="font-family:var(--font-mono);font-size:12px;color:var(--cyan)">${r.uptime||'-'}</td>
+                        <td><code style="color:var(--txt3)">${r.version||'-'}</code></td>
+                    </tr>`;
+                }).join('')
+            }</tbody></table>`;
+        } else if (rDiv && data.routers.length === 0) {
+            rDiv.innerHTML = '<div class="empty-state"><i class="fas fa-wifi"></i><h3>No routers connected</h3><p>Scan your network to discover MikroTik routers</p></div>';
+        }
+
+        initDashboardCharts(data);
+        loadAlertCount();
+    } catch(e) {
+        // Silently fail — don't break the dashboard on network hiccup
+    }
+}
+
+function initDashboardCharts(data) {
+    const tCtx = document.getElementById('trafficChart');
+    if (tCtx) {
+        if (dashboardCharts.traffic) dashboardCharts.traffic.destroy();
+        const bw = data.bandwidth.slice(0,30).reverse();
+        dashboardCharts.traffic = new Chart(tCtx, {
+            type:'line',
+            data: {
+                labels: bw.map((_,i)=>i+1+'s'),
+                datasets:[
+                    { label:'Download', data:bw.map(b=>(b.rx_bytes||0)/1024/1024), borderColor:'#2196f3', backgroundColor:'rgba(33,150,243,0.1)', fill:true, tension:0.4, borderWidth:2, pointRadius:0 },
+                    { label:'Upload', data:bw.map(b=>(b.tx_bytes||0)/1024/1024), borderColor:'#00bcd4', backgroundColor:'rgba(0,188,212,0.08)', fill:true, tension:0.4, borderWidth:2, pointRadius:0 }
+                ]
+            },
+            options:{responsive:true,maintainAspectRatio:false,
+                plugins:{legend:{labels:{color:'#8ba8c8',font:{size:11}}}},
+                scales:{x:{grid:{color:'rgba(26,48,88,0.4)'},ticks:{color:'#4d6a87',font:{size:10}}},y:{grid:{color:'rgba(26,48,88,0.4)'},ticks:{color:'#4d6a87',font:{size:10},callback:v=>v.toFixed(1)+' MB'}}}}
+        });
+    }
+    const hCtx = document.getElementById('healthChart');
+    if (hCtx && data.routers.length > 0) {
+        if (dashboardCharts.health) dashboardCharts.health.destroy();
+        const r = data.routers[0];
+        dashboardCharts.health = new Chart(hCtx, {
+            type:'doughnut',
+            data:{
+                labels:['CPU Used','CPU Free','Mem Used','Mem Free'],
+                datasets:[{data:[r.cpu_load||10,100-(r.cpu_load||10),r.memory_used||30,100-(r.memory_used||30)],
+                    backgroundColor:['#2196f3','rgba(33,150,243,0.12)','#00e676','rgba(0,230,118,0.1)'],borderWidth:0}]
+            },
+            options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
+                plugins:{legend:{position:'bottom',labels:{color:'#8ba8c8',font:{size:11},padding:14}}}}
+        });
+    }
+}
+
+/* ══════════════════════════════════════════════════════════
+   SIEM CENTER
+   ══════════════════════════════════════════════════════════ */
+function renderSIEM() {
+    document.getElementById('pageContent').innerHTML = `
+    <div class="fade-in">
+        <div class="stats-grid mb-20" id="siemStats">
+            <div class="stat-card red"><div class="stat-icon red"><i class="fas fa-skull-crossbones"></i></div><div class="stat-value" id="siemCritical">—</div><div class="stat-label">Critical Events</div></div>
+            <div class="stat-card orange"><div class="stat-icon orange"><i class="fas fa-triangle-exclamation"></i></div><div class="stat-value" id="siemWarning">—</div><div class="stat-label">Warnings</div></div>
+            <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-file-lines"></i></div><div class="stat-value" id="siemLogs">—</div><div class="stat-label">Total Log Entries</div></div>
+            <div class="stat-card cyan"><div class="stat-icon cyan"><i class="fas fa-clock"></i></div><div class="stat-value" id="siemRecent">—</div><div class="stat-label">Events (24h)</div></div>
+            <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-check-double"></i></div><div class="stat-value" id="siemUnresolved">—</div><div class="stat-label">Unresolved</div></div>
+        </div>
+        <div class="grid-2 mb-20">
+            <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-chart-bar"></i> Alerts by Hour (24h)</span></div><div class="card-body"><div class="chart-container"><canvas id="siemHourChart"></canvas></div></div></div>
+            <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-chart-pie"></i> Alert Severity Distribution</span></div><div class="card-body"><div class="chart-container"><canvas id="siemPieChart"></canvas></div></div></div>
+        </div>
+        <div class="grid-2 mb-20">
+            <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-list-check"></i> Top Threat Types</span></div><div class="card-body" id="siemThreatTypes"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h3>Loading...</h3></div></div></div>
+            <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-network-wired"></i> Top Source IPs</span></div><div class="card-body" id="siemTopIPs"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h3>Loading...</h3></div></div></div>
+        </div>
+        <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-chart-area"></i> Log Level Distribution</span>
+            <button class="btn btn-secondary btn-sm" id="siemRefreshBtn" onclick="refreshSIEM()"><i class="fas fa-sync-alt"></i></button>
+        </div><div class="card-body"><div class="chart-container-tall"><canvas id="siemLogLevelChart"></canvas></div></div></div>
+    </div>`;
+    loadSIEMStats();
+}
+
+async function refreshSIEM() {
+    const btn = document.getElementById('siemRefreshBtn');
+    if (btn) { btn.innerHTML = '<span class="spinner"></span>'; btn.disabled = true; }
+    await loadSIEMStats();
+    if (btn) { btn.innerHTML = '<i class="fas fa-sync-alt"></i>'; btn.disabled = false; }
+}
+
+async function loadSIEMStats() {
+    try {
+        const data = await apiCall('/api/siem/stats');
+        document.getElementById('siemCritical').textContent = data.critical;
+        document.getElementById('siemWarning').textContent = data.warning;
+        document.getElementById('siemLogs').textContent = data.total_logs;
+        document.getElementById('siemRecent').textContent = data.recent_24h;
+        document.getElementById('siemUnresolved').textContent = data.unresolved;
+
+        // Hourly chart
+        const hCtx = document.getElementById('siemHourChart');
+        if (hCtx) {
+            if (siemCharts.hour) siemCharts.hour.destroy();
+            const hours = Array.from({length:24},(_,i)=>String(i).padStart(2,'0'));
+            const counts = hours.map(h => { const row = data.by_hour.find(r=>r.hour===h); return row ? row.cnt : 0; });
+            siemCharts.hour = new Chart(hCtx, {
+                type:'bar',
+                data:{ labels:hours.map(h=>h+':00'), datasets:[{ label:'Events', data:counts,
+                    backgroundColor:'rgba(33,150,243,0.4)', borderColor:'#2196f3', borderWidth:1, borderRadius:4 }] },
+                options:{responsive:true,maintainAspectRatio:false,
+                    plugins:{legend:{display:false}},
+                    scales:{x:{grid:{color:'rgba(26,48,88,0.4)'},ticks:{color:'#4d6a87',font:{size:9}}},
+                            y:{grid:{color:'rgba(26,48,88,0.4)'},ticks:{color:'#4d6a87',font:{size:10}}}}}
+            });
+        }
+
+        // Severity pie
+        const pCtx = document.getElementById('siemPieChart');
+        if (pCtx) {
+            if (siemCharts.pie) siemCharts.pie.destroy();
+            siemCharts.pie = new Chart(pCtx, {
+                type:'doughnut',
+                data:{ labels:['Critical','Warning','Info'],
+                    datasets:[{ data:[data.critical||0, data.warning||0, data.info||0],
+                        backgroundColor:['rgba(244,67,54,0.8)','rgba(255,152,0,0.8)','rgba(33,150,243,0.8)'],
+                        borderWidth:0 }] },
+                options:{responsive:true,maintainAspectRatio:false,cutout:'55%',
+                    plugins:{legend:{position:'bottom',labels:{color:'#8ba8c8',font:{size:11},padding:14}}}}
+            });
+        }
+
+        // Log level bar chart
+        const lCtx = document.getElementById('siemLogLevelChart');
+        if (lCtx) {
+            if (siemCharts.logLevel) siemCharts.logLevel.destroy();
+            const levels = data.log_levels || [];
+            const colors = { CRITICAL:'#f44336', WARNING:'#ff9800', INFO:'#2196f3', ERROR:'#e91e63' };
+            siemCharts.logLevel = new Chart(lCtx, {
+                type:'bar',
+                data:{ labels:levels.map(l=>l.level),
+                    datasets:[{ label:'Count', data:levels.map(l=>l.cnt),
+                        backgroundColor:levels.map(l=>colors[l.level]||'#2196f3'), borderRadius:6 }] },
+                options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+                    plugins:{legend:{display:false}},
+                    scales:{x:{grid:{color:'rgba(26,48,88,0.4)'},ticks:{color:'#4d6a87'}},
+                            y:{grid:{color:'rgba(26,48,88,0.4)'},ticks:{color:'#8ba8c8',font:{size:12}}}}}
+            });
+        }
+
+        // Threat types
+        const ttDiv = document.getElementById('siemThreatTypes');
+        const maxC = data.by_type.length ? data.by_type[0].cnt : 1;
+        if (data.by_type.length === 0) ttDiv.innerHTML = '<div class="empty-state"><i class="fas fa-shield-check"></i><h3>No threats detected</h3></div>';
+        else ttDiv.innerHTML = data.by_type.map(t=>`
+            <div class="threat-bar">
+                <div class="threat-bar-label">${t.alert_type||'unknown'}</div>
+                <div class="threat-bar-track"><div class="threat-bar-fill" style="width:${Math.round((t.cnt/maxC)*100)}%"></div></div>
+                <div class="threat-bar-count">${t.cnt}</div>
+            </div>`).join('');
+
+        // Top IPs
+        const ipDiv = document.getElementById('siemTopIPs');
+        const maxI = data.top_ips.length ? data.top_ips[0].cnt : 1;
+        if (data.top_ips.length === 0) ipDiv.innerHTML = '<div class="empty-state"><i class="fas fa-network-wired"></i><h3>No source IP data</h3></div>';
+        else ipDiv.innerHTML = data.top_ips.map(ip=>`
+            <div class="threat-bar">
+                <div class="threat-bar-label"><code>${ip.source_ip}</code></div>
+                <div class="threat-bar-track"><div class="threat-bar-fill" style="width:${Math.round((ip.cnt/maxI)*100)}%;background:linear-gradient(90deg,var(--red),var(--orange))"></div></div>
+                <div class="threat-bar-count">${ip.cnt}</div>
+            </div>`).join('');
+    } catch(e) {}
+}
+
+/* ══════════════════════════════════════════════════════════
+   ROUTER DISCOVERY
+   ══════════════════════════════════════════════════════════ */
+function renderScan() {
+    document.getElementById('pageContent').innerHTML = `
+    <div class="fade-in">
+        <div class="grid-2 mb-20">
+            <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-satellite-dish"></i> Auto-Discover MikroTik</span></div><div class="card-body" style="text-align:center">
+                <p style="color:var(--txt3);margin-bottom:16px;font-size:13px">Scans your local subnet for MikroTik devices via MAC OUI prefixes and open ports 8291/8728.</p>
+                <div class="form-group" style="text-align:left"><label>Subnet (optional)</label><input type="text" class="form-input" id="scanSubnet" placeholder="e.g. 192.168.1 (auto if empty)"></div>
+                <button class="btn btn-primary" onclick="startNetworkScan()" id="scanBtn"><i class="fas fa-search"></i> Scan Network</button>
+                <div id="scanResults" class="mt-16"></div>
+            </div></div>
+            <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-plug"></i> Manual Connection</span></div><div class="card-body">
+                <div class="form-group"><label>Router IP Address</label><input type="text" class="form-input" id="routerIp" placeholder="192.168.88.1"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Username</label><input type="text" class="form-input" id="routerUser" value="admin"></div>
+                    <div class="form-group"><label>Password</label><input type="password" class="form-input" id="routerPass" placeholder="Password"></div>
+                </div>
+                <div class="form-group"><label>API Port</label><input type="number" class="form-input" id="routerPort" value="8728"></div>
+                <button class="btn btn-primary" onclick="connectRouter()" id="connectBtn"><i class="fas fa-link"></i> Connect to Router</button>
+            </div></div>
+        </div>
+        <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-server"></i> Managed Routers</span>
+            <div style="display:flex;gap:8px">
+                <button class="btn btn-secondary btn-sm" onclick="loadRouters()"><i class="fas fa-sync-alt"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="clearAllRouters()"><i class="fas fa-trash"></i> Clear All</button>
+            </div>
+        </div><div class="card-body no-pad" id="connectedRouters"><div class="empty-state"><i class="fas fa-plug"></i><h3>No routers connected</h3></div></div></div>
+    </div>`;
+    loadRouters();
+}
+
+async function startNetworkScan() {
+    const btn = document.getElementById('scanBtn');
+    btn.innerHTML = '<span class="spinner"></span> Scanning...';
+    btn.disabled = true;
+    document.getElementById('scanResults').innerHTML = '<div class="scan-radar"></div><p style="color:var(--txt3);font-size:12px">Scanning for MikroTik devices...</p>';
+    try {
+        const subnet = document.getElementById('scanSubnet').value;
+        const data = await apiCall('/api/scan/network', { method:'POST', body:{ subnet:subnet||undefined } });
+        const div = document.getElementById('scanResults');
+        if (data.routers.length === 0) div.innerHTML = `<p style="color:var(--orange)"><i class="fas fa-info-circle"></i> No MikroTik devices found on ${subnet||data.local_network}.0/24</p>`;
+        else div.innerHTML = `<p style="color:var(--green);margin-bottom:10px"><i class="fas fa-check"></i> Found ${data.routers.length} device(s)</p>` +
+            data.routers.map(r=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg3);border-radius:var(--r2);margin-bottom:6px;border:1px solid var(--brd)">
+                <div><strong style="color:var(--cyan)">${r.ip}</strong><span style="color:var(--txt3);margin-left:10px">${r.mac||'Unknown MAC'}</span></div>
+                <button class="btn btn-success btn-sm" onclick="document.getElementById('routerIp').value='${r.ip}'"><i class="fas fa-arrow-right"></i> Use</button>
+            </div>`).join('');
+    } catch(e) { document.getElementById('scanResults').innerHTML = `<p style="color:var(--red)"><i class="fas fa-times"></i> Scan failed: ${e.message}</p>`; }
+    btn.innerHTML = '<i class="fas fa-search"></i> Scan Again';
+    btn.disabled = false;
+}
+
+async function connectRouter() {
+    const btn = document.getElementById('connectBtn');
+    btn.innerHTML = '<span class="spinner"></span> Connecting...';
+    btn.disabled = true;
+    try {
+        const data = await apiCall('/api/router/connect', { method:'POST', body:{
+            ip:document.getElementById('routerIp').value,
+            username:document.getElementById('routerUser').value,
+            password:document.getElementById('routerPass').value,
+            port:document.getElementById('routerPort').value
+        }});
+        showToast(`Connected to ${data.name} (${data.board} v${data.version})`, 'success');
+        selectedRouter = data.router_id;
+        isConnected = true;
+        updateConnStatus();
+        loadRouters();
+        loadDashboard();
+    } catch(e) {}
+    btn.innerHTML = '<i class="fas fa-link"></i> Connect to Router';
+    btn.disabled = false;
+}
+
+async function loadRouters() {
+    try {
+        const data = await apiCall('/api/routers');
+        const div = document.getElementById('connectedRouters');
+        if (!div) return;
+        if (data.routers.length === 0) { div.innerHTML = '<div class="empty-state"><i class="fas fa-plug"></i><h3>No routers</h3></div>'; return; }
+        div.innerHTML = `<table class="data-table"><thead><tr>
+            <th>Name</th><th>IP</th><th>Board</th><th>Version</th><th>Status</th><th>CPU</th><th>Memory</th><th>Uptime</th><th>Actions</th>
+         </thead><tbody>${data.routers.map(r=>{
+            const cpu=r.cpu_load||0, mem=r.memory_used||0;
+            const memLabel = r.memory_used_mb ? r.memory_used_mb+'MB / '+(r.memory_total_mb||'?')+'MB' : mem+'%';
+            return `<tr>
+                <td style="font-weight:600;color:var(--txt1)">${r.name}</td>
+                <td><code>${r.ip}</code></td>
+                <td style="font-size:11px">${r.board_name||'-'}</td>
+                <td><code style="color:var(--txt3);font-size:11px">${r.version||'-'}</code></td>
+                <td><span class="badge ${r.status==='connected'?'badge-success':'badge-muted'}">${r.status}</span></td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:5px">
+                    <div class="progress-bar" style="width:46px"><div class="progress-fill ${cpu>80?'red':cpu>50?'orange':'green'}" style="width:${cpu}%"></div></div>
+                    <span style="font-family:var(--font-mono);font-size:11px">${cpu}%</span>
+                  </div>
+                  <div style="font-size:10px;color:var(--txt3)">${100-cpu}% free</div>
+                </td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:5px">
+                    <div class="progress-bar" style="width:46px"><div class="progress-fill ${mem>80?'red':mem>50?'orange':'green'}" style="width:${mem}%"></div></div>
+                    <span style="font-family:var(--font-mono);font-size:11px">${mem}%</span>
+                  </div>
+                  <div style="font-size:10px;color:var(--txt3)">${memLabel}</div>
+                </td>
+                <td style="font-family:var(--font-mono);font-size:11px;color:var(--cyan)">${r.uptime||'-'}</td>
+                <td>
+                  <button class="btn btn-danger btn-sm btn-icon" onclick="disconnectRouter(${r.id})" title="Disconnect"><i class="fas fa-unlink"></i></button>
+                  <button class="btn btn-secondary btn-sm btn-icon" onclick="deleteRouter(${r.id})" title="Delete record"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;}).join('')
+        }</tbody></table>`;
+    } catch(e) {}
+}
+
+async function disconnectRouter(id) {
+    await apiCall(`/api/router/${id}/disconnect`, { method:'POST' });
+    showToast('Router disconnected', 'info');
+    if (selectedRouter === id) { selectedRouter = null; isConnected = false; updateConnStatus(); }
+    loadRouters();
+}
+
+async function deleteRouter(id) {
+    if (!confirm('Delete this router record and all its data? This cannot be undone.')) return;
+    try {
+        await apiCall(`/api/router/${id}/delete`, { method:'DELETE' });
+        showToast('Router record deleted', 'success');
+        if (selectedRouter === id) { selectedRouter = null; isConnected = false; updateConnStatus(); }
+        loadRouters();
+        loadDashboard();
+    } catch(e) {}
+}
+
+async function clearAllRouters() {
+    if (!confirm('Remove ALL router records? Connected routers will be disconnected.')) return;
+    try {
+        const data = await apiCall('/api/routers');
+        for (const r of data.routers) {
+            await apiCall(`/api/router/${r.id}/delete`, { method:'DELETE' }).catch(()=>{});
+        }
+        selectedRouter = null; isConnected = false; updateConnStatus();
+        showToast('All router records cleared', 'success');
+        loadRouters(); loadDashboard();
+    } catch(e) {}
+}
+
+/* ══════════════════════════════════════════════════════════
+   DEVICES
+   ══════════════════════════════════════════════════════════ */
+function renderDevices() {
+    const noRouter = !selectedRouter;
+    const noMsg = noRouter ? '<div class="empty-state"><i class="fas fa-plug"></i><h3>Connect a router first</h3></div>' : '<div style="padding:20px;text-align:center"><span class="spinner"></span> <span style="color:var(--txt3);font-size:12px;margin-left:8px">Loading...</span></div>';
+    document.getElementById('pageContent').innerHTML = `
+    <div class="fade-in">
+        <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-laptop"></i> Network Devices</span>
+            <button class="btn btn-secondary btn-sm" id="devRefreshBtn" onclick="refreshAllDevices()"><i class="fas fa-sync-alt"></i> Refresh All</button>
+        </div>
+        <div class="card-body">
+            <div class="tab-bar">
+                <div class="tab-item active" onclick="switchDevTab('net',this)"><i class="fas fa-network-wired"></i> DHCP Leases</div>
+                <div class="tab-item" onclick="switchDevTab('wifi',this)"><i class="fas fa-wifi"></i> WiFi / Hotspot</div>
+                <div class="tab-item" onclick="switchDevTab('active',this)"><i class="fas fa-users"></i> Active Sessions</div>
+            </div>
+            <div id="devPanel-net">${noMsg}</div>
+            <div id="devPanel-wifi" class="hidden">${noMsg}</div>
+            <div id="devPanel-active" class="hidden">${noMsg}</div>
+        </div></div>
+    </div>`;
+    if (selectedRouter) {
+        // Load all panels in parallel — much faster than sequential
+        Promise.all([loadDevices(), loadWifiClients(), loadActiveUsers()]);
+    }
+}
+
+async function refreshAllDevices() {
+    const btn = document.getElementById('devRefreshBtn');
+    if (!btn) return;
+    btn.innerHTML = '<span class="spinner"></span> Refreshing...';
+    btn.disabled = true;
+    await Promise.all([loadDevices(), loadWifiClients(), loadActiveUsers()]);
+    btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh All';
+    btn.disabled = false;
+}
+
+function switchDevTab(name, el) {
+    document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+    el.classList.add('active');
+    ['net','wifi','active'].forEach(p=>{ const d=document.getElementById(`devPanel-${p}`); if(d) d.classList.toggle('hidden', p!==name); });
+}
+
+async function loadDevices() {
+    if (!selectedRouter) return;
+    try {
+        const data = await apiCall(`/api/router/${selectedRouter}/devices`);
+        const div = document.getElementById('devPanel-net');
+        if (!div) return;
+        if (!data.devices || data.devices.length===0) { div.innerHTML='<div class="empty-state"><i class="fas fa-wifi"></i><h3>No DHCP leases found</h3><p>No devices with active leases on this router.</p></div>'; return; }
+        div.innerHTML = `
+        <div style="padding:10px 14px;background:var(--bg3);border-bottom:1px solid var(--brd);font-size:12px;color:var(--txt3)">
+          <i class="fas fa-circle" style="color:var(--green);font-size:8px"></i> ${data.devices.length} device(s) with DHCP leases
+        </div>
+        <table class="data-table"><thead><tr>
+          <th>IP Address</th><th>MAC Address</th><th>Device Name</th><th>Vendor</th><th>Last Seen</th><th>Lease Status</th><th>Actions</th>
+         </thead><tbody>${
+            data.devices.map(d=>`<tr>
+                <td><code style="color:var(--cyan)">${d.ip||'-'}</code></td>
+                <td><code style="font-size:11px">${d.mac||'-'}</code></td>
+                <td>
+                  <div style="font-weight:500;color:var(--txt1)">${d.hostname||'Unknown Device'}</div>
+                  ${d.server?'<div style="font-size:10px;color:var(--txt3)">Server: '+d.server+'</div>':''}
+                </td>
+                <td>${d.vendor?'<span class="badge badge-cyan">'+d.vendor+'</span>':'-'}</td>
+                <td style="font-size:11px;color:var(--txt3)">${d.last_seen||'-'}</td>
+                <td><span class="badge ${d.status==='bound'?'badge-success':d.status==='waiting'?'badge-warning':'badge-muted'}">${d.status||'unknown'}</span></td>
+                <td style="display:flex;gap:4px">
+                  <button class="btn btn-danger btn-sm btn-icon" onclick="blockIP('${d.ip}')" title="Block IP"><i class="fas fa-ban"></i></button>
+                  <button class="btn btn-secondary btn-sm btn-icon" onclick="scanDevicePorts('${d.ip}')" title="Port Scan"><i class="fas fa-search"></i></button>
+                </td>
+            </tr>`).join('')
+        }</tbody></table>`;
+    } catch(e) { 
+        const div = document.getElementById('devPanel-net');
+        if(div) div.innerHTML='<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error loading devices</h3><p>'+e.message+'</p></div>';
+    }
+}
+
+async function loadWifiClients() {
+    if (!selectedRouter) return;
+    const div = document.getElementById('devPanel-wifi');
+    if (!div) return;
+    try {
+        const data = await apiCall(`/api/router/${selectedRouter}/wifi-clients`);
+        const wifi = data.clients || [];
+        const hotspot = data.hotspot || [];
+        const total = wifi.length + hotspot.length;
+
+        if (total === 0) {
+            div.innerHTML='<div class="empty-state"><i class="fas fa-wifi"></i><h3>No wireless clients connected</h3><p>No WiFi, CAPsMAN or hotspot clients found.</p></div>';
+            return;
+        }
+
+        let html = `<div style="padding:10px 14px;background:var(--bg3);border-bottom:1px solid var(--brd);font-size:12px;color:var(--txt3)">
+          <i class="fas fa-circle" style="color:var(--green);font-size:8px"></i> ${wifi.length} wireless client(s) &nbsp;·&nbsp; ${hotspot.length} hotspot client(s)
+        </div>`;
+
+        if (wifi.length > 0) {
+            html += `<div style="padding:8px 14px 4px;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--txt3);text-transform:uppercase">WiFi / CAPsMAN Clients</div>
+            <table class="data-table"><thead><tr>
+              <th>MAC Address</th><th>IP Address</th><th>Interface</th><th>Signal (dBm)</th><th>TX Rate</th><th>RX Rate</th><th>Uptime</th><th>Type</th>
+             </thead><tbody>${
+                wifi.map(c=>`<tr>
+                    <td><code>${c['mac-address']||'-'}</code></td>
+                    <td><code style="color:var(--cyan)">${c['ip-address']||c['last-ip']||'-'}</code></td>
+                    <td>${c.interface||c['radio-name']||'-'}</td>
+                    <td>
+                      <span style="color:${signalColor(c['signal-strength']||c['signal'])}">${c['signal-strength']||c['signal']||'-'}</span>
+                      ${signalBar(c['signal-strength']||c['signal'])}
+                    </td>
+                    <td style="font-size:11px">${c['tx-rate']||c['tx-rate-set']||'-'}</td>
+                    <td style="font-size:11px">${c['rx-rate']||c['rx-rate-set']||'-'}</td>
+                    <td style="font-size:11px;color:var(--txt3)">${c.uptime||'-'}</td>
+                    <td><span class="badge ${c._type==='capsman'?'badge-cyan':'badge-info'}">${c._type||'wifi'}</span></td>
+                </tr>`).join('')
+            }</tbody></table>`;
+        }
+
+        if (hotspot.length > 0) {
+            html += `<div style="padding:8px 14px 4px;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--txt3);text-transform:uppercase;border-top:1px solid var(--brd)">Hotspot Clients</div>
+            <table class="data-table"><thead><tr>
+              <th>User</th><th>IP Address</th><th>MAC Address</th><th>Server</th><th>Uptime</th><th>Upload</th><th>Download</th><th>Actions</th>
+             </thead><tbody>${
+                hotspot.map(c=>`<tr>
+                    <td style="font-weight:600;color:var(--txt1)">${c.user||'Unknown'}</td>
+                    <td><code style="color:var(--cyan)">${c.address||'-'}</code></td>
+                    <td><code style="font-size:11px">${c['mac-address']||'-'}</code></td>
+                    <td>${c.server||'-'}</td>
+                    <td style="font-size:11px;color:var(--txt3)">${c.uptime||'-'}</td>
+                    <td style="font-size:11px">${formatBytes(parseInt(c['bytes-out']||0))}</td>
+                    <td style="font-size:11px">${formatBytes(parseInt(c['bytes-in']||0))}</td>
+                    <td>
+                      <button class="btn btn-danger btn-sm btn-icon" onclick="blockIP('${c.address}')" title="Block"><i class="fas fa-ban"></i></button>
+                    </td>
+                </tr>`).join('')
+            }</tbody></table>`;
+        }
+
+        div.innerHTML = html;
+    } catch(e) { 
+        div.innerHTML='<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error loading clients</h3><p>'+e.message+'</p></div>';
+    }
+}
+
+function signalColor(s) {
+    const n = parseInt(s);
+    if (isNaN(n)) return 'var(--txt3)';
+    if (n >= -60) return 'var(--green)';
+    if (n >= -75) return 'var(--orange)';
+    return 'var(--red)';
+}
+function signalBar(s) {
+    const n = parseInt(s);
+    if (isNaN(n)) return '';
+    const pct = Math.max(0, Math.min(100, ((n + 100) / 60) * 100));
+    const color = n >= -60 ? 'var(--green)' : n >= -75 ? 'var(--orange)' : 'var(--red)';
+    return `<div class="progress-bar" style="width:36px;display:inline-block;margin-left:5px;vertical-align:middle"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>`;
+}
+
+async function loadActiveUsers() {
+    try {
+        const data = await apiCall('/api/admin/active-users');
+        const div = document.getElementById('devPanel-active');
+        if (!div) return;
+        if (data.users.length === 0) { div.innerHTML='<div class="empty-state"><i class="fas fa-users"></i><h3>No active sessions</h3></div>'; return; }
+        div.innerHTML = `<div style="padding:4px 0">${data.users.map(u=>`
+            <div class="active-user-row">
+                <div class="active-user-avatar">${(u.username||'?')[0].toUpperCase()}</div>
+                <div class="active-user-info">
+                    <div class="active-user-name">${u.username}</div>
+                    <div class="active-user-detail"><i class="fas fa-network-wired" style="margin-right:4px"></i>${u.ip||'Unknown IP'} &nbsp;·&nbsp; <i class="fas fa-clock" style="margin-right:4px"></i>${timeAgo(u.login_time)}</div>
+                </div>
+                <span class="badge badge-success"><i class="fas fa-circle" style="font-size:8px"></i> Online</span>
+            </div>`).join('')}</div>`;
+    } catch(e) {}
+}
+
+async function blockIP(ip) {
+    if (!selectedRouter) return showToast('Select a router first', 'error');
+    if (!confirm(`Block IP ${ip}? This will drop all traffic from this device.`)) return;
+    try {
+        await apiCall(`/api/router/${selectedRouter}/block-ip`, { method:'POST', body:{ip} });
+        showToast(`IP ${ip} blocked`, 'success'); loadDevices();
+    } catch(e) {}
+}
+
+function scanDevicePorts(ip) { navigateTo('portscan'); setTimeout(()=>{ const el=document.getElementById('scanTarget'); if(el) el.value=ip; },100); }
+
+/* ══════════════════════════════════════════════════════════
+   PORT SCANNER
+   ══════════════════════════════════════════════════════════ */
+function renderPortScan() {
+    document.getElementById('pageContent').innerHTML = `
+    <div class="fade-in">
+        <div class="card mb-20"><div class="card-header"><span class="card-title"><i class="fas fa-door-open"></i> Port Scanner</span></div><div class="card-body">
+            <div class="form-row">
+                <div class="form-group" style="flex:2"><label>Target IP Address</label><input type="text" class="form-input" id="scanTarget" placeholder="192.168.88.1"></div>
+                <div class="form-group"><label>Port Range</label><input type="text" class="form-input" id="scanRange" value="1-1024"></div>
+                <div class="form-group" style="display:flex;align-items:flex-end"><button class="btn btn-primary" onclick="startPortScan()" id="portScanBtn"><i class="fas fa-crosshairs"></i> Scan</button></div>
+            </div>
+        </div></div>
+        <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-list"></i> Results</span></div><div class="card-body no-pad" id="portScanResults"><div class="empty-state"><i class="fas fa-search"></i><h3>Enter target and click Scan</h3></div></div></div>
+    </div>`;
+}
+
+async function startPortScan() {
+    const btn = document.getElementById('portScanBtn');
+    const target = document.getElementById('scanTarget').value;
+    const range = document.getElementById('scanRange').value;
+    if (!target) return showToast('Enter target IP', 'error');
+    btn.innerHTML = '<span class="spinner"></span> Scanning...'; btn.disabled = true;
+    document.getElementById('portScanResults').innerHTML = `<div style="padding:40px;text-align:center"><span class="spinner"></span><p style="color:var(--txt3);margin-top:12px">Scanning ${target}...</p></div>`;
+    try {
+        const data = await apiCall('/api/scan/ports', { method:'POST', body:{target, range} });
+        const div = document.getElementById('portScanResults');
+        if (data.results.length===0) { div.innerHTML='<div class="empty-state"><i class="fas fa-lock"></i><h3>No open ports found</h3></div>'; return; }
+        div.innerHTML=`<table class="data-table"><thead><tr><th>Port</th><th>Service</th><th>State</th><th>Risk</th></table></thead><tbody>${
+            data.results.map(r=>`<tr>
+                <td style="font-weight:700;color:var(--cyan)">${r.port}</td>
+                <td>${r.service}</td>
+                <td><span class="badge badge-success">${r.state}</span></td>
+                <td><span class="badge ${r.risk_level==='CRITICAL'?'badge-danger':r.risk_level==='HIGH'?'badge-danger':r.risk_level==='MEDIUM'?'badge-warning':'badge-info'}">${r.risk_level}</span></td>
+            </tr>`).join('')
+        }</tbody></table>`;
+        showToast(`${data.results.length} open ports found`, 'success');
+    } catch(e) {}
+    btn.innerHTML='<i class="fas fa-crosshairs"></i> Scan'; btn.disabled=false;
+}
+
+/* ══════════════════════════════════════════════════════════
+   FIREWALL
+   ══════════════════════════════════════════════════════════ */
+function renderFirewall() {
+    document.getElementById('pageContent').innerHTML = `
+    <div class="fade-in">
+        <div class="stats-grid mb-20">
+            <div class="stat-card red" style="cursor:pointer" onclick="showModal('blockIPModal')"><div class="stat-icon red"><i class="fas fa-ban"></i></div><div class="stat-value" style="font-size:16px">Block IP</div><div class="stat-label">Drop all traffic from IP</div></div>
+            <div class="stat-card orange" style="cursor:pointer" onclick="showModal('blockWebModal')"><div class="stat-icon orange"><i class="fas fa-globe"></i></div><div class="stat-value" style="font-size:16px">Block Site</div><div class="stat-label">URL / domain filter</div></div>
+            <div class="stat-card blue" style="cursor:pointer" onclick="showModal('addRuleModal')"><div class="stat-icon blue"><i class="fas fa-plus"></i></div><div class="stat-value" style="font-size:16px">Add Rule</div><div class="stat-label">Custom firewall rule</div></div>
+            <div class="stat-card green" style="cursor:pointer" onclick="refreshFirewall(this)"><div class="stat-icon green"><i class="fas fa-sync-alt" id="fwRefreshIcon"></i></div><div class="stat-value" style="font-size:16px">Refresh</div><div class="stat-label">Reload all rules</div></div>
+        </div>
+        <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-fire"></i> Firewall Filter Rules</span></div><div class="card-body no-pad" id="firewallRules">${selectedRouter?'<div style="padding:40px;text-align:center"><span class="spinner"></span></div>':'<div class="empty-state"><i class="fas fa-plug"></i><h3>Connect a router first</h3></div>'}</div></div>
+    </div>
+    <!-- Modals -->
+    <div class="modal-overlay" id="blockIPModal"><div class="modal"><button class="modal-close" onclick="closeModal('blockIPModal')">&times;</button>
+        <div class="modal-title"><i class="fas fa-ban" style="color:var(--red)"></i> Block IP Address</div>
+        <div class="form-group"><label>IP Address</label><input type="text" class="form-input" id="blockIPInput" placeholder="192.168.88.100"></div>
+        <button class="btn btn-danger btn-full" onclick="doBlockIP()"><i class="fas fa-ban"></i> Block IP</button>
+    </div></div>
+    <div class="modal-overlay" id="blockWebModal"><div class="modal"><button class="modal-close" onclick="closeModal('blockWebModal')">&times;</button>
+        <div class="modal-title"><i class="fas fa-globe" style="color:var(--orange)"></i> Block Website</div>
+        <div class="form-group"><label>Domain or URL</label><input type="text" class="form-input" id="blockWebInput" placeholder="example.com"></div>
+        <button class="btn btn-warning btn-full" onclick="doBlockWebsite()"><i class="fas fa-globe"></i> Block Website</button>
+    </div></div>
+    <div class="modal-overlay" id="addRuleModal"><div class="modal"><button class="modal-close" onclick="closeModal('addRuleModal')">&times;</button>
+        <div class="modal-title"><i class="fas fa-plus" style="color:var(--blue)"></i> Add Firewall Rule</div>
+        <div class="form-row">
+            <div class="form-group"><label>Chain</label><select class="form-input" id="ruleChain"><option>forward</option><option>input</option><option>output</option></select></div>
+            <div class="form-group"><label>Action</label><select class="form-input" id="ruleAction"><option>drop</option><option>accept</option><option>reject</option><option>log</option></select></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Source Address</label><input type="text" class="form-input" id="ruleSrc" placeholder="Any"></div>
+            <div class="form-group"><label>Dest Address</label><input type="text" class="form-input" id="ruleDst" placeholder="Any"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Protocol</label><select class="form-input" id="ruleProto"><option value="">Any</option><option>tcp</option><option>udp</option><option>icmp</option></select></div>
+            <div class="form-group"><label>Dest Port</label><input type="text" class="form-input" id="rulePort" placeholder="Any"></div>
+        </div>
+        <div class="form-group"><label>Comment</label><input type="text" class="form-input" id="ruleComment" placeholder="Next Gen Pro Rule"></div>
+        <button class="btn btn-primary btn-full" onclick="doAddRule()"><i class="fas fa-plus"></i> Add Rule</button>
+    </div></div>`;
+    if (selectedRouter) loadFirewallRules();
+}
+
+function showModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+async function doBlockIP() {
+    if (!selectedRouter) return showToast('Select a router first','error');
+    const ip = document.getElementById('blockIPInput').value;
+    if (!ip) return;
+    try { await apiCall(`/api/router/${selectedRouter}/block-ip`,{method:'POST',body:{ip}}); showToast(`IP ${ip} blocked`,'success'); closeModal('blockIPModal'); loadFirewallRules(); } catch(e) {}
+}
+async function doBlockWebsite() {
+    if (!selectedRouter) return showToast('Select a router first','error');
+    const w = document.getElementById('blockWebInput').value;
+    if (!w) return;
+    try { await apiCall(`/api/router/${selectedRouter}/block-website`,{method:'POST',body:{website:w}}); showToast(`${w} blocked`,'success'); closeModal('blockWebModal'); } catch(e) {}
+}
+async function doAddRule() {
+    if (!selectedRouter) return showToast('Select a router first','error');
+    const rule = { chain:document.getElementById('ruleChain').value, action:document.getElementById('ruleAction').value,
+        'src-address':document.getElementById('ruleSrc').value, 'dst-address':document.getElementById('ruleDst').value,
+        protocol:document.getElementById('ruleProto').value, 'dst-port':document.getElementById('rulePort').value,
+        comment:document.getElementById('ruleComment').value||'Next Gen Pro Rule' };
+    try { await apiCall(`/api/router/${selectedRouter}/firewall/add`,{method:'POST',body:rule}); showToast('Rule added','success'); closeModal('addRuleModal'); loadFirewallRules(); } catch(e) {}
+}
+async function refreshFirewall(el) {
+    const icon = document.getElementById('fwRefreshIcon');
+    if (icon) icon.className = 'fas fa-spinner fa-spin';
+    if (el) el.style.pointerEvents = 'none';
+    await loadFirewallRules();
+    if (icon) icon.className = 'fas fa-sync-alt';
+    if (el) el.style.pointerEvents = '';
+}
+async function loadFirewallRules() {
+    if (!selectedRouter) return;
+    const div = document.getElementById('firewallRules');
+    if (!div) return;
+    div.innerHTML = '<div style="padding:30px;text-align:center"><span class="spinner"></span> <span style="color:var(--txt3);font-size:12px;margin-left:8px">Loading firewall rules...</span></div>';
+    try {
+        const data = await apiCall(`/api/router/${selectedRouter}/firewall`);
+        const rules = data.filter||[];
+        if (rules.length===0) { div.innerHTML='<div class="empty-state"><i class="fas fa-fire"></i><h3>No firewall rules</h3></div>'; return; }
+        div.innerHTML=`<table class="data-table"><thead><tr><th>#</th><th>Chain</th><th>Action</th><th>Source</th><th>Destination</th><th>Protocol</th><th>Port</th><th>Comment</th><th>Del</th></tr></thead><tbody>${
+            rules.map((r,i)=>`<tr>
+                <td style="color:var(--txt3)">${i+1}</td><td>${r.chain||'-'}</td>
+                <td><span class="badge ${r.action==='drop'?'badge-danger':r.action==='accept'?'badge-success':'badge-warning'}">${r.action||'-'}</span></td>
+                <td>${r['src-address']||'any'}</td><td>${r['dst-address']||'any'}</td>
+                <td>${r.protocol||'any'}</td><td>${r['dst-port']||'any'}</td>
+                <td style="color:var(--txt3)">${r.comment||'-'}</td>
+                <td><button class="btn btn-danger btn-sm btn-icon" onclick="removeRule('${r['.id']||''}')"><i class="fas fa-trash"></i></button></td>
+            </tr>`).join('')
+        }</tbody></table>`;
+    } catch(e) {
+        if (div) div.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error loading rules</h3><p>${e.message}</p></div>`;
+    }
+}
+async function removeRule(id) {
+    if (!selectedRouter||!id) return;
+    if (!confirm('Delete this firewall rule?')) return;
+    try { await apiCall(`/api/router/${selectedRouter}/firewall/remove`,{method:'POST',body:{id}}); showToast('Rule deleted','success'); loadFirewallRules(); } catch(e) {}
+}
+
+/* ══════════════════════════════════════════════════════════
+   ALERTS
+   ══════════════════════════════════════════════════════════ */
+function renderAlerts() {
+    document.getElementById('pageContent').innerHTML = `
+    <div class="fade-in">
+        <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-bell"></i> Security Alerts</span>
+            <div style="display:flex;gap:8px">
+                <button class="btn btn-danger btn-sm" onclick="if(confirm('Clear all alerts?'))clearHistory('alerts')"><i class="fas fa-trash"></i> Clear All</button>
+                <button class="btn btn-primary btn-sm" onclick="printToPDF('alertsList','Security-Alerts-Report')"><i class="fas fa-file-pdf"></i> Save PDF</button>
+                <button class="btn btn-secondary btn-sm" id="alertRefreshBtn" onclick="refreshAlerts()"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </div><div class="card-body no-pad" id="alertsList"><div style="padding:40px;text-align:center"><span class="spinner"></span></div></div></div>
+    </div>`;
+    loadAlerts();
+}
+async function refreshAlerts() {
+    const btn = document.getElementById('alertRefreshBtn');
+    if (btn) { btn.innerHTML = '<span class="spinner"></span>'; btn.disabled = true; }
+    await loadAlerts();
+    if (btn) { btn.innerHTML = '<i class="fas fa-sync-alt"></i>'; btn.disabled = false; }
+}
+async function loadAlerts() {
+    try {
+        const data = await apiCall('/api/alerts');
+        const div = document.getElementById('alertsList');
+        if (data.alerts.length===0) { div.innerHTML='<div class="empty-state"><i class="fas fa-check-circle"></i><h3>No alerts</h3><p>System is secure.</p></div>'; return; }
+        div.innerHTML = data.alerts.map(a=>`
+            <div class="alert-item" style="${a.is_resolved?'opacity:0.5':''}">
+                <div class="alert-icon ${a.severity==='CRITICAL'?'critical':a.severity==='WARNING'?'warning':'info'}"><i class="fas fa-${a.severity==='CRITICAL'?'skull-crossbones':a.severity==='WARNING'?'triangle-exclamation':'info-circle'}"></i></div>
+                <div class="alert-content">
+                    <div class="alert-title">${a.title} <span class="badge ${a.severity==='CRITICAL'?'badge-danger':a.severity==='WARNING'?'badge-warning':'badge-info'}">${a.severity}</span></div>
+                    <div class="alert-desc">${a.description||''}</div>
+                    <div style="margin-top:3px"><small style="color:var(--txt3)">${a.source_ip?'Source: '+a.source_ip+' · ':''}${timeAgo(a.timestamp)}</small></div>
+                </div>
+                ${!a.is_resolved?`<button class="btn btn-success btn-sm" onclick="resolveAlert(${a.id})"><i class="fas fa-check"></i></button>`:'<span class="badge badge-muted">Resolved</span>'}
+            </div>`).join('');
+    } catch(e) {}
+}
+async function resolveAlert(id) {
+    await apiCall(`/api/alerts/${id}/resolve`,{method:'POST'});
+    showToast('Alert resolved','success'); loadAlerts(); loadAlertCount();
+}
+
+/* ══════════════════════════════════════════════════════════
+   LOG ANALYZER
+   ══════════════════════════════════════════════════════════ */
+function renderLogs() {
+    document.getElementById('pageContent').innerHTML = `
+    <div class="fade-in">
+        <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-scroll"></i> Log Analyzer (SIEM)</span>
+            <div style="display:flex;gap:8px;align-items:center">
+                <select id="logLevelFilter" class="form-input" style="width:120px;padding:5px 10px;font-size:12px" onchange="filterLogs()">
+                    <option value="">All Levels</option>
+                    <option value="CRITICAL">Critical</option>
+                    <option value="WARNING">Warning</option>
+                    <option value="INFO">Info</option>
+                </select>
+                <input type="text" id="logSearch" class="form-input" style="width:180px;padding:5px 10px;font-size:12px" placeholder="Search logs..." oninput="filterLogs()">
+                <button class="btn btn-danger btn-sm" onclick="if(confirm('Clear all logs?'))clearHistory('logs')"><i class="fas fa-trash"></i> Clear</button>
+                <button class="btn btn-primary btn-sm" onclick="printToPDF('logOutput','Log-Analyzer-Report')"><i class="fas fa-file-pdf"></i> Save PDF</button>
+                <button class="btn btn-secondary btn-sm" onclick="loadLogs()"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+        </div>
+        <div class="card-body no-pad">
+            <div style="background:var(--bg0);border-radius:0 0 var(--r) var(--r)">
+                <div style="display:flex;align-items:center;gap:7px;padding:10px 14px;background:var(--bg2);border-bottom:1px solid var(--brd)">
+                    <div class="terminal-dot red"></div><div class="terminal-dot yellow"></div><div class="terminal-dot green"></div>
+                    <span style="color:var(--txt3);font-size:11px;margin-left:8px;font-family:var(--font-mono)">SIEM Log Stream — RouterOS ${selectedRouter?'(Router #'+selectedRouter+')':'— Disconnected'}</span>
+                </div>
+                <div id="logOutput" style="padding:12px 16px;font-family:var(--font-mono);font-size:12.5px;line-height:1.8;overflow-y:auto;min-height:450px;max-height:620px">${selectedRouter?'<span class="log-info">Fetching logs...</span>':'<span class="log-warn">⚠ Connect a router to view live logs</span>'}</div>
+            </div>
+        </div></div>
+    </div>`;
+    if (selectedRouter) loadLogs();
+}
+
+let _allLogs = [];
+function filterLogs() {
+    const level = document.getElementById('logLevelFilter')?.value || '';
+    const search = (document.getElementById('logSearch')?.value || '').toLowerCase();
+    const div = document.getElementById('logOutput');
+    if (!div) return;
+    const filtered = _allLogs.filter(l => {
+        const matchLevel = !level || (l.level||'INFO') === level;
+        const matchSearch = !search || (l.human||l.message||'').toLowerCase().includes(search);
+        return matchLevel && matchSearch;
+    });
+    if (filtered.length === 0) { div.innerHTML = '<span class="log-info">No logs match the filter.</span>'; return; }
+    div.innerHTML = renderLogLines(filtered);
+    div.scrollTop = div.scrollHeight;
+}
+
+function renderLogLines(logs) {
+    return logs.slice(-200).map(l=>{
+        const human = l.human || l.message || l.msg || JSON.stringify(l);
+        const raw   = l.message || l.msg || '';
+        const t     = l.time || (l.timestamp ? new Date(l.timestamp).toLocaleTimeString() : '');
+        const topics = l.topics || l.category || '';
+        const level = l.level || 'INFO';
+        let cls = 'log-info';
+        if (level==='CRITICAL'||level==='ERROR') cls='log-error';
+        else if (level==='WARNING') cls='log-warn';
+        else if (raw.toLowerCase().includes('error')||raw.toLowerCase().includes('critical')) cls='log-error';
+        else if (raw.toLowerCase().includes('warning')) cls='log-warn';
+        else if (raw.toLowerCase().includes('logged in')||raw.toLowerCase().includes('login')) cls='log-success';
+
+        let icon = 'fa-circle-dot';
+        if (cls==='log-error') icon='fa-circle-xmark';
+        else if (cls==='log-warn') icon='fa-triangle-exclamation';
+        else if (cls==='log-success') icon='fa-circle-check';
+        else if (topics.includes('dhcp')||raw.includes('dhcp')) icon='fa-network-wired';
+        else if (topics.includes('firewall')||raw.includes('firewall')) icon='fa-fire';
+        else if (raw.includes('link')) icon='fa-ethernet';
+        else if (raw.includes('wireless')||raw.includes('wifi')) icon='fa-wifi';
+
+        const levelColor = level==='CRITICAL'?'rgba(244,67,54,0.2)':level==='WARNING'?'rgba(255,152,0,0.2)':'rgba(33,150,243,0.15)';
+        const levelTxtColor = level==='CRITICAL'?'var(--red)':level==='WARNING'?'var(--orange)':'var(--blue)';
+        const badge = level!=='INFO' ? `<span style="padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;margin-left:5px;background:${levelColor};color:${levelTxtColor}">${level}</span>` : '';
+        const topicTag = topics ? `<span style="font-size:10px;color:var(--txt3);margin-left:5px">[${topics}]</span>` : '';
+
+        return `<div style="display:flex;gap:10px;padding:5px 0;border-bottom:1px solid rgba(26,48,88,0.15);align-items:flex-start">
+            <span style="color:var(--txt3);font-size:10px;white-space:nowrap;min-width:80px;padding-top:2px">${t}</span>
+            <i class="fas ${icon} ${cls}" style="font-size:11px;margin-top:3px;flex-shrink:0"></i>
+            <div style="flex:1"><span class="${cls}">${human}</span>${badge}${topicTag}</div>
+        </div>`;
+    }).join('');
+}
+async function loadLogs() {
+    if (!selectedRouter) return;
+    const div = document.getElementById('logOutput');
+    if (!div) return;
+    div.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:16px"><span class="spinner"></span><span class="log-info">Fetching logs from router...</span></div>';
+    try {
+        const data = await apiCall(`/api/router/${selectedRouter}/logs`);
+        const logs = data.logs||[];
+        if (logs.length===0) { div.innerHTML='<span class="log-info">No logs available</span>'; return; }
+        _allLogs = logs;
+        div.innerHTML = renderLogLines(logs);
+        div.scrollTop = div.scrollHeight;
+    } catch(e) {
+        if(div) div.innerHTML = `<span class="log-error">Error fetching logs: ${e.message}</span>`;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════
+   BLOCKED ITEMS
+   ══════════════════════════════════════════════════════════ */
+function renderBlocked() {
+    document.getElementById('pageContent').innerHTML = `
+    <div class="fade-in">
+        <div class="grid-2">
+            <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-ban"></i> Blocked IPs</span></div><div class="card-body no-pad" id="blockedIPsList"></div></div>
+            <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-globe"></i> Blocked Websites</span></div><div class="card-body no-pad" id="blockedWebsList"></div></div>
+        </div>
+    </div>`;
+    loadBlockedItems();
+}
+async function loadBlockedItems() {
+    try {
+        const [ips, webs] = await Promise.all([apiCall('/api/blocked/ips'), apiCall('/api/blocked/websites')]);
+        const iDiv = document.getElementById('blockedIPsList');
+        const wDiv = document.getElementById('blockedWebsList');
+        if (iDiv) {
+            if (ips.blocked.length===0) iDiv.innerHTML='<div class="empty-state"><i class="fas fa-database"></i><h3>No blocked IPs</h3></div>';
+            else iDiv.innerHTML=`<table class="data-table"><thead><tr><th>IP</th><th>Reason</th><th>When</th><th></th></tr></thead><tbody>${
+                ips.blocked.map(b=>`<tr><td><code>${b.ip}</code></td><td>${b.reason||'-'}</td><td>${timeAgo(b.blocked_at)}</td><td><button class="btn btn-success btn-sm" onclick="unblockIP(${b.id})">Unblock</button></td></tr>`).join('')
+            }</tbody></table>`;
+        }
+        if (wDiv) {
+            if (webs.blocked.length===0) wDiv.innerHTML='<div class="empty-state"><i class="fas fa-database"></i><h3>No blocked websites</h3></div>';
+            else wDiv.innerHTML=`<table class="data-table"><thead><tr><th>Domain</th><th>Reason</th><th>When</th><th></th></tr></thead><tbody>${
+                webs.blocked.map(b=>`<tr><td>${b.website}</td><td>${b.reason||'-'}</td><td>${timeAgo(b.blocked_at)}</td><td><button class="btn btn-success btn-sm" onclick="unblockWebsite(${b.id})">Unblock</button></td></tr>`).join('')
+            }</tbody></table>`;
+        }
+    } catch(e) {}
+}
+async function unblockIP(id) { if(confirm('Unblock this IP?')){ await apiCall(`/api/blocked/ip/${id}/unblock`,{method:'POST'}); showToast('IP unblocked','success'); loadBlockedItems(); } }
+async function unblockWebsite(id) { if(confirm('Unblock this site?')){ await apiCall(`/api/blocked/website/${id}/unblock`,{method:'POST'}); showToast('Website unblocked','success'); loadBlockedItems(); } }
+
+/* ══════════════════════════════════════════════════════════
+   DDOS / DOS MONITOR
+   ══════════════════════════════════════════════════════════ */
+function renderDDoS() {
+    document.getElementById('pageContent').innerHTML = `
+    <div class="fade-in">
+        <div class="stats-grid mb-20">
+            <div class="stat-card red"><div class="stat-icon red"><i class="fas fa-skull-crossbones"></i></div><div class="stat-value" id="ddosTotal">—</div><div class="stat-label">Total DDoS/DoS Events</div></div>
+            <div class="stat-card orange"><div class="stat-icon orange"><i class="fas fa-bolt"></i></div><div class="stat-value" id="ddos24h">—</div><div class="stat-label">Events (Last 24h)</div></div>
+            <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-network-wired"></i></div><div class="stat-value" id="ddosUniqueIPs">—</div><div class="stat-label">Unique Attacker IPs</div></div>
+            <div class="stat-card cyan"><div class="stat-icon cyan"><i class="fas fa-clock"></i></div><div class="stat-value" id="ddosLastSeen">—</div><div class="stat-label">Last Attack</div></div>
+        </div>
+        <div class="card mb-20">
+            <div class="card-header">
+                <span class="card-title"><i class="fas fa-shield-virus"></i> DDoS / DoS Attack Log</span>
+                <div style="display:flex;gap:8px">
+                    <button class="btn btn-secondary btn-sm" onclick="loadDDoSEvents()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <button class="btn btn-primary btn-sm" onclick="printToPDF('ddosContent','DDoS-DoS-Report')"><i class="fas fa-file-pdf"></i> Save PDF</button>
+                </div>
+            </div>
+            <div id="ddosContent">
+                <div class="card-body no-pad" id="ddosList"><div style="padding:30px;text-align:center"><span class="spinner"></span></div></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><span class="card-title"><i class="fas fa-info-circle"></i> Attack Type Reference</span></div>
+            <div class="card-body">
+                <table class="data-table"><thead><tr><th>Type</th><th>Description</th><th>Indicator</th></tr></thead><tbody>
+                    <tr><td><span class="badge badge-danger">SYN Flood</span></td><td>Overwhelms TCP handshake with half-open connections</td><td>High SYN packet rate, connection timeouts</td></tr>
+                    <tr><td><span class="badge badge-danger">ICMP Flood</span></td><td>Ping flood saturating bandwidth</td><td>Excessive ICMP echo requests</td></tr>
+                    <tr><td><span class="badge badge-danger">UDP Flood</span></td><td>Random UDP packets to exhaust resources</td><td>High UDP traffic, port unreachable errors</td></tr>
+                    <tr><td><span class="badge badge-warning">HTTP Flood</span></td><td>Layer 7 attack flooding web server requests</td><td>High HTTP request rate from single IP</td></tr>
+                    <tr><td><span class="badge badge-warning">Connection Flood</span></td><td>Exhausting max simultaneous connections</td><td>Rapid new connection establishment</td></tr>
+                    <tr><td><span class="badge badge-info">Brute Force DoS</span></td><td>Login flood causing CPU spike</td><td>Repeated failed authentication attempts</td></tr>
+                </tbody></table>
+            </div>
+        </div>
+    </div>`;
+    loadDDoSEvents();
+}
+
+async function loadDDoSEvents() {
+    try {
+        const data = await apiCall('/api/alerts');
+        const ddosAlerts = data.alerts.filter(a => a.alert_type === 'ddos');
+        document.getElementById('ddosTotal').textContent = ddosAlerts.length;
+        const cutoff = new Date(Date.now() - 86400000);
+        const recent = ddosAlerts.filter(a => new Date(a.timestamp) > cutoff);
+        document.getElementById('ddos24h').textContent = recent.length;
+        const uniqueIPs = new Set(ddosAlerts.map(a=>a.source_ip).filter(Boolean));
+        document.getElementById('ddosUniqueIPs').textContent = uniqueIPs.size;
+        document.getElementById('ddosLastSeen').textContent = ddosAlerts.length ? timeAgo(ddosAlerts[0].timestamp) : 'Never';
+        const div = document.getElementById('ddosList');
+        if (ddosAlerts.length === 0) {
+            div.innerHTML = '<div class="empty-state"><i class="fas fa-shield-check"></i><h3>No DDoS/DoS events detected</h3><p>Network appears clean.</p></div>';
+            return;
+        }
+        div.innerHTML = `<table class="data-table"><thead><tr><th>Time</th><th>Type</th><th>Source IP</th><th>Description</th><th>Severity</th><th>Status</th></tr></thead><tbody>${
+            ddosAlerts.map(a=>`<tr>
+                <td style="white-space:nowrap;color:var(--txt3);font-size:11px">${fmtDate(a.timestamp)}</td>
+                <td><span class="badge badge-danger">${a.title||'DDoS/DoS'}</span></td>
+                <td><code>${a.source_ip||'unknown'}</code></td>
+                <td style="color:var(--txt2);font-size:12px">${a.description||'-'}</td>
+                <td><span class="badge ${a.severity==='CRITICAL'?'badge-danger':a.severity==='WARNING'?'badge-warning':'badge-info'}">${a.severity}</span></td>
+                <td>${a.is_resolved?'<span class="badge badge-success">Resolved</span>':'<span class="badge badge-warning">Active</span>'}</td>
+            </tr>`).join('')
+        }</tbody></table>`;
+    } catch(e) {}
+}
+
+/* ══════════════════════════════════════════════════════════
+   LOGIN ANALYSIS
+   ══════════════════════════════════════════════════════════ */
+function renderLoginAnalysis() {
+    document.getElementById('pageContent').innerHTML = `
+    <div class="fade-in">
+        <div class="stats-grid mb-20">
+            <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="laSuccess">—</div><div class="stat-label">Successful Logins</div></div>
+            <div class="stat-card red"><div class="stat-icon red"><i class="fas fa-times-circle"></i></div><div class="stat-value" id="laFailed">—</div><div class="stat-label">Failed Attempts</div></div>
+            <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-users"></i></div><div class="stat-value" id="laUniqueIPs">—</div><div class="stat-label">Unique IPs</div></div>
+            <div class="stat-card orange"><div class="stat-icon orange"><i class="fas fa-clock"></i></div><div class="stat-value" id="laLast">—</div><div class="stat-label">Last Login</div></div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title"><i class="fas fa-user-clock"></i> Login History</span>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <input type="text" id="laSearch" class="form-input" style="width:180px;padding:5px 10px;font-size:12px" placeholder="Search user / IP / MAC..." oninput="filterLoginHistory()">
+                    <select id="laFilter" class="form-input" style="width:120px;padding:5px 10px;font-size:12px" onchange="filterLoginHistory()">
+                        <option value="">All</option>
+                        <option value="success">Success</option>
+                        <option value="failed">Failed</option>
+                    </select>
+                    <button class="btn btn-secondary btn-sm" onclick="loadLoginHistory()"><i class="fas fa-sync-alt"></i></button>
+                    <button class="btn btn-danger btn-sm" onclick="clearLoginAnalysis()"><i class="fas fa-trash"></i> Clear</button>
+                    <button class="btn btn-primary btn-sm" onclick="printToPDF('loginHistoryTable','Login-Analysis-Report')"><i class="fas fa-file-pdf"></i> Save PDF</button>
+                </div>
+            </div>
+            <div class="card-body no-pad" id="loginHistoryTable">
+                <div style="padding:30px;text-align:center"><span class="spinner"></span></div>
+            </div>
+        </div>
+    </div>`;
+    loadLoginHistory();
+}
+
+let _allLoginHistory = [];
+async function loadLoginHistory() {
+    try {
+        const data = await apiCall('/api/login-history');
+        _allLoginHistory = data.history || [];
+        const success = _allLoginHistory.filter(r=>r.status==='success').length;
+        const failed  = _allLoginHistory.filter(r=>r.status==='failed').length;
+        const uniqueIPs = new Set(_allLoginHistory.map(r=>r.ip_address).filter(Boolean)).size;
+        document.getElementById('laSuccess').textContent = success;
+        document.getElementById('laFailed').textContent  = failed;
+        document.getElementById('laUniqueIPs').textContent = uniqueIPs;
+        document.getElementById('laLast').textContent = _allLoginHistory.length ? timeAgo(_allLoginHistory[0].login_time) : 'Never';
+        renderLoginTable(_allLoginHistory);
+    } catch(e) {}
+}
+
+function filterLoginHistory() {
+    const search = (document.getElementById('laSearch')?.value||'').toLowerCase();
+    const filter = document.getElementById('laFilter')?.value||'';
+    const filtered = _allLoginHistory.filter(r=>{
+        const matchStatus = !filter || r.status === filter;
+        const matchSearch = !search ||
+            (r.username||'').toLowerCase().includes(search) ||
+            (r.ip_address||'').toLowerCase().includes(search) ||
+            (r.mac_address||'').toLowerCase().includes(search);
+        return matchStatus && matchSearch;
+    });
+    renderLoginTable(filtered);
+}
+
+function renderLoginTable(rows) {
+    const div = document.getElementById('loginHistoryTable');
+    if (!div) return;
+    if (rows.length === 0) { div.innerHTML='<div class="empty-state"><i class="fas fa-user-slash"></i><h3>No login records found</h3></div>'; return; }
+    div.innerHTML = `<table class="data-table" id="loginTableInner">
+        <thead><tr>
+            <th>Date</th><th>Time</th><th>Month / Year</th>
+            <th>Username</th><th>IP Address</th><th>MAC Address</th>
+            <th>Status</th>
+        </tr></thead>
+        <tbody>${rows.map(r => {
+            const dt = r.login_time ? new Date(r.login_time) : null;
+            const date   = dt ? dt.toLocaleDateString('en-GB')  : '-';
+            const time   = dt ? dt.toLocaleTimeString('en-GB')  : '-';
+            const monthYear = dt ? dt.toLocaleString('en-GB',{month:'long',year:'numeric'}) : '-';
+            const statusCls = r.status==='success' ? 'badge-success' : 'badge-danger';
+            return `<tr>
+                <td style="white-space:nowrap">${date}</td>
+                <td style="white-space:nowrap;font-family:var(--font-mono);font-size:12px">${time}</td>
+                <td style="color:var(--txt2)">${monthYear}</td>
+                <td><strong>${r.username||'-'}</strong></td>
+                <td><code>${r.ip_address||'-'}</code></td>
+                <td><code style="font-size:11px">${r.mac_address||'N/A'}</code></td>
+                <td><span class="badge ${statusCls}">${r.status}</span></td>
+            </tr>`;
+        }).join('')}</tbody>
+    </table>`;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   CLEAR LOGIN ANALYSIS
+   ══════════════════════════════════════════════════════════ */
+async function clearLoginAnalysis() {
+    if (!confirm('Clear all login history records? This cannot be undone.')) return;
+    try {
+        await apiCall('/api/history/login', {method:'DELETE'});
+        _allLoginHistory = [];
+        document.getElementById('laSuccess').textContent = '0';
+        document.getElementById('laFailed').textContent  = '0';
+        document.getElementById('laUniqueIPs').textContent = '0';
+        document.getElementById('laLast').textContent = 'Never';
+        document.getElementById('loginHistoryTable').innerHTML = '<div class="empty-state"><i class="fas fa-user-slash"></i><h3>No login records found</h3></div>';
+        showToast('Login history cleared', 'success');
+    } catch(e) { showToast('Failed to clear: ' + e.message, 'error'); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   PDF PRINT UTILITY
+   ══════════════════════════════════════════════════════════ */
+function printToPDF(elementId, filename) {
+    const el = document.getElementById(elementId);
+    if (!el) { showToast('Nothing to print','error'); return; }
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`<!DOCTYPE html><html><head>
+        <title>${filename}</title>
+        <style>
+            body { font-family: Arial, sans-serif; font-size: 12px; color: #111; background: #fff; margin: 20px; }
+            h2 { color: #1a3058; border-bottom: 2px solid #2196f3; padding-bottom: 6px; margin-bottom: 16px; }
+            table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+            th { background: #1a3058; color: #fff; padding: 7px 10px; text-align: left; font-size: 11px; }
+            td { padding: 6px 10px; border-bottom: 1px solid #ddd; font-size: 11px; }
+            tr:nth-child(even) td { background: #f5f8ff; }
+            .badge { display:inline-block; padding:2px 7px; border-radius:4px; font-size:10px; font-weight:600; }
+            .badge-danger  { background:#f44336; color:#fff; }
+            .badge-success { background:#4caf50; color:#fff; }
+            .badge-warning { background:#ff9800; color:#fff; }
+            .badge-info    { background:#2196f3; color:#fff; }
+            .empty-state { text-align:center; padding:40px; color:#888; }
+            @media print { body { margin:0; } }
+        </style>
+    </head><body>
+        <h2><i></i> ${filename.replace(/-/g,' ')} — Generated ${new Date().toLocaleString()}</h2>
+        ${el.innerHTML}
+    </body></html>`);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(()=>{ printWindow.print(); }, 600);
+}
+function renderHistory() {
+    document.getElementById('pageContent').innerHTML = `
+    <div class="fade-in">
+        <div class="card mb-20"><div class="card-header"><span class="card-title"><i class="fas fa-history"></i> Router Connection History</span>
+            <button class="btn btn-danger btn-sm" onclick="if(confirm('Clear all history?'))clearHistory('all')"><i class="fas fa-trash"></i> Clear All History</button>
+        </div><div class="card-body no-pad" id="historyList"><div style="padding:30px;text-align:center"><span class="spinner"></span></div></div>
+        <div style="border-top:2px solid var(--brd2)">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg3)">
+                <span style="font-family:var(--font-mono);font-size:12px;color:var(--cyan)"><i class="fas fa-fire-alt" style="margin-right:6px;color:var(--orange)"></i>ip/firewall-rules/print</span>
+                <button class="btn btn-secondary btn-sm" onclick="loadFirewallHistory()"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+            <div id="firewallHistoryList"><div style="padding:20px;text-align:center"><span class="spinner"></span></div></div>
+        </div>
+        <div style="border-top:2px solid var(--brd2)">
+            <div style="display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--bg3)">
+                <div class="terminal-dot red"></div><div class="terminal-dot yellow"></div><div class="terminal-dot green"></div>
+                <span style="font-family:var(--font-mono);font-size:12px;color:var(--cyan);margin-left:4px">ip/logs/print/detail</span>
+            </div>
+            <div id="detailedLogOutput" style="padding:12px 16px;font-family:var(--font-mono);font-size:12.5px;line-height:1.9;overflow-y:auto;max-height:480px;background:var(--bg0)"></div>
+        </div>
+        </div>
+    </div>`;
+    loadHistory();
+    loadFirewallHistory();
+    renderDetailedLogs();
+}
+
+async function loadHistory() {
+    try {
+        const data = await apiCall('/api/routers/history');
+        const div = document.getElementById('historyList');
+        if (!div) return;
+        if (data.routers.length===0) { div.innerHTML='<div class="empty-state"><i class="fas fa-database"></i><h3>No historical records</h3><p>Previously connected routers will appear here.</p></div>'; return; }
+        div.innerHTML=`<table class="data-table"><thead><tr><th>Name</th><th>IP</th><th>Board</th><th>Version</th><th>Last Seen</th><th>Uptime</th><th>Actions</th></tr></thead><tbody>${
+            data.routers.map(r=>`<tr>
+                <td style="font-weight:600;color:var(--txt1)">${r.name||'Unknown'}</td>
+                <td><code>${r.ip}</code></td>
+                <td>${r.board_name||'-'}</td>
+                <td>${r.version||'-'}</td>
+                <td>${fmtDate(r.last_seen)}</td>
+                <td>${r.uptime||'-'}</td>
+                <td><button class="btn btn-danger btn-sm" onclick="deleteHistoryEntry(${r.id})" title="Delete record"><i class="fas fa-trash"></i></button>
+                    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('routerIp').value='${r.ip}';navigateTo('scan')" title="Reconnect"><i class="fas fa-plug"></i></button></td>
+            </tr>`).join('')
+        }</tbody></table>`;
+    } catch(e) {}
+}
+
+async function deleteHistoryEntry(id) {
+    if (!confirm('Remove this router record from history?')) return;
+    try { await apiCall(`/api/history/router/${id}`,{method:'DELETE'}); showToast('Record deleted','success'); loadHistory(); } catch(e) {}
+}
+
+async function clearHistory(type) {
+    const endpoints = { all:'/api/history/all', logs:'/api/history/logs', alerts:'/api/history/alerts' };
+    try { await apiCall(endpoints[type]||'/api/history/all',{method:'DELETE'}); showToast('History cleared','success');
+        if (type==='logs') loadLogs(); else if (type==='alerts') loadAlerts(); else if (type==='all') { loadHistory(); loadDashboard(); }
+    } catch(e) {}
+}
+
+async function loadFirewallHistory() {
+    const div = document.getElementById('firewallHistoryList');
+    if (!div) return;
+    if (!selectedRouter) {
+        div.innerHTML = '<div class="empty-state"><i class="fas fa-plug"></i><h3>No router connected</h3><p>Connect a router to view firewall rules.</p></div>';
+        return;
+    }
+    div.innerHTML = '<div style="padding:20px;text-align:center"><span class="spinner"></span> <span style="color:var(--txt3);font-size:12px;margin-left:8px">Loading...</span></div>';
+    try {
+        const data = await apiCall(`/api/router/${selectedRouter}/firewall`);
+        const rules = (data.filter||[]).concat(data.nat||[]);
+        if (rules.length===0) { div.innerHTML='<div class="empty-state"><i class="fas fa-fire"></i><h3>No firewall rules found</h3></div>'; return; }
+        div.innerHTML=`<table class="data-table"><thead><tr><th>#</th><th>Chain</th><th>Action</th><th>Source</th><th>Destination</th><th>Protocol</th><th>Port</th><th>Comment</th></tr></thead><tbody>${
+            rules.map((r,i)=>`<tr>
+                <td style="color:var(--txt3)">${i+1}</td>
+                <td>${r.chain||'-'}</td>
+                <td><span class="badge ${r.action==='drop'?'badge-danger':r.action==='accept'?'badge-success':'badge-warning'}">${r.action||'-'}</span></td>
+                <td>${r['src-address']||'any'}</td><td>${r['dst-address']||'any'}</td>
+                <td>${r.protocol||'any'}</td><td>${r['dst-port']||'any'}</td>
+                <td style="color:var(--txt3)">${r.comment||'-'}</td>
+            </tr>`).join('')
+        }</tbody></table>`;
+    } catch(e) {
+        if (div) div.innerHTML=`<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error loading rules</h3><p>${e.message}</p></div>`;
+    }
+}
+
+function renderDetailedLogs() {
+    const logEntries = [
+        { time:'apr/21 15:28:57', topics:'system,error,critical', message:'router was rebooted without proper shutdown' },
+        { time:'apr/21 15:29:00', topics:'pppoe,ppp,info',        message:'pppoe-out1: initializing...' },
+        { time:'apr/21 15:29:00', topics:'pppoe,ppp,info',        message:'pppoe-out1: connecting...' },
+        { time:'apr/21 15:29:00', topics:'bridge,info',           message:'"LAN-Bridge" mac address changed to 18:FD:74:E3:DB:17' },
+        { time:'apr/21 15:29:00', topics:'pppoe,ppp,info',        message:'pppoe-out1: terminating...' },
+        { time:'apr/21 15:29:00', topics:'pppoe,ppp,info',        message:'pppoe-out1: disconnected' },
+        { time:'apr/21 15:29:00', topics:'pppoe,ppp,info',        message:'pppoe-out1: initializing...' },
+        { time:'apr/21 15:29:00', topics:'pppoe,ppp,info',        message:'pppoe-out1: connecting...' },
+        { time:'apr/21 15:29:01', topics:'wireless,info',         message:'wlan1: pre-shared key authentication not enabled, disable WPS' },
+        { time:'apr/21 15:29:04', topics:'pppoe,ppp,info',        message:'pppoe-out1: terminating...' },
+        { time:'apr/21 15:29:04', topics:'pppoe,ppp,info',        message:'pppoe-out1: disconnected' },
+        { time:'apr/21 15:29:04', topics:'pppoe,ppp,info',        message:'pppoe-out1: initializing...' },
+        { time:'apr/21 15:29:04', topics:'pppoe,ppp,info',        message:'pppoe-out1: connecting...' },
+        { time:'apr/21 15:29:04', topics:'pppoe,ppp,info',        message:'pppoe-out1: terminating...' },
+        { time:'apr/21 15:29:04', topics:'pppoe,ppp,info',        message:'pppoe-out1: disconnected' },
+        { time:'apr/21 15:29:04', topics:'pppoe,ppp,info',        message:'pppoe-out1: initializing...' },
+        { time:'apr/21 15:29:04', topics:'pppoe,ppp,info',        message:'pppoe-out1: connecting...' },
+        { time:'apr/21 15:29:04', topics:'pppoe,ppp,info',        message:'pppoe-out1: terminating...' },
+        { time:'apr/21 15:29:04', topics:'pppoe,ppp,info',        message:'pppoe-out1: disconnected' },
+    ];
+    const div = document.getElementById('detailedLogOutput');
+    if (!div) return;
+    div.innerHTML = logEntries.map(l => {
+        const isCritical = l.topics.includes('critical') || l.topics.includes('error');
+        const isWarning  = l.topics.includes('warning');
+        const cls   = isCritical ? 'log-error' : isWarning ? 'log-warn' : 'log-info';
+        const icon  = isCritical ? 'fa-circle-exclamation' : isWarning ? 'fa-triangle-exclamation' : 'fa-circle-info';
+        return `<div style="display:flex;gap:10px;padding:5px 0;border-bottom:1px solid rgba(26,48,88,0.15);align-items:flex-start">
+            <span style="color:var(--txt3);font-size:10px;white-space:nowrap;min-width:110px;padding-top:2px">${l.time}</span>
+            <i class="fas ${icon} ${cls}" style="font-size:11px;margin-top:3px;flex-shrink:0"></i>
+            <div style="flex:1"><span class="${cls}">${l.message}</span><span style="font-size:10px;color:var(--txt3);margin-left:6px">[${l.topics}]</span></div>
+        </div>`;
+    }).join('');
+}
+
+/* ══════════════════════════════════════════════════════════
+   CONFIG
+   ══════════════════════════════════════════════════════════ */
+const CONFIG_SECTIONS = [
+    {id:'ip/address',       icon:'fa-network-wired',  label:'IP Addresses',   desc:'Assigned IP addresses on interfaces'},
+    {id:'ip/route',         icon:'fa-route',           label:'Routes',         desc:'Static and dynamic routing table'},
+    {id:'ip/dns',           icon:'fa-globe',           label:'DNS',            desc:'DNS server settings and cache'},
+    {id:'ip/dhcp-server',   icon:'fa-server',          label:'DHCP Server',    desc:'DHCP server configuration'},
+    {id:'ip/pool',          icon:'fa-swatchbook',      label:'IP Pools',       desc:'IP address pools for DHCP'},
+    {id:'interface',        icon:'fa-ethernet',        label:'Interfaces',     desc:'Network interface list and stats'},
+    {id:'ip/firewall/nat',  icon:'fa-random',          label:'NAT Rules',      desc:'Network address translation rules'},
+    {id:'user',             icon:'fa-users',           label:'Users',          desc:'Router user accounts and roles'},
+    {id:'ip/service',       icon:'fa-cog',             label:'Services',       desc:'Enabled services and ports'},
+    {id:'system/identity',  icon:'fa-id-card',         label:'Identity',       desc:'Router hostname and identity'},
+    {id:'queue/simple',     icon:'fa-tachometer-alt',  label:'Queues',         desc:'Bandwidth queue rules'},
+    {id:'interface/wireless',icon:'fa-wifi',           label:'Wireless',       desc:'Wireless interface settings'},
+];
+
+function renderConfig() {
+    const pc = document.getElementById('pageContent');
+    if (!selectedRouter) {
+        pc.innerHTML = `<div class="fade-in"><div class="card"><div class="card-body">
+            <div class="empty-state"><i class="fas fa-plug"></i><h3>Connect a router first</h3><p>Select a connected router to view its configuration.</p></div>
+        </div></div></div>`;
+        return;
+    }
+    pc.innerHTML = `
+    <div class="fade-in">
+        <div class="config-grid">
+            ${CONFIG_SECTIONS.map(s => `
+            <div class="config-item" onclick="loadConfig('${s.id}')">
+                <i class="fas ${s.icon}"></i>
+                <span>${s.label}</span>
+            </div>`).join('')}
+        </div>
+    </div>`;
+}
+
+async function loadConfig(section) {
+    if (!selectedRouter || !section) return;
+    currentConfigSection = section;
+    const sec = CONFIG_SECTIONS.find(s => s.id === section) || {icon:'fa-cogs', label:section, desc:''};
+    const pc = document.getElementById('pageContent');
+
+    // Full-page takeover — only the section data, nothing else
+    pc.innerHTML = `
+    <div class="config-detail-view">
+        <button class="config-back-btn" onclick="renderConfig()">
+            <i class="fas fa-arrow-left"></i> Back to Configuration
+        </button>
+        <div class="config-section-header">
+            <div class="config-section-icon"><i class="fas ${sec.icon}"></i></div>
+            <div>
+                <div class="config-section-title">${sec.label}</div>
+                <div class="config-section-sub">${sec.desc}</div>
+            </div>
+        </div>
+        <div id="configDetailBody">
+            <div style="padding:40px;text-align:center"><span class="spinner"></span></div>
+        </div>
+    </div>`;
+
+    try {
+        const data = await apiCall(`/api/router/${selectedRouter}/config/${section}`);
+        const items = data.data || [];
+        const body = document.getElementById('configDetailBody');
+        if (!items.length) {
+            body.innerHTML = '<div class="card"><div class="card-body"><div class="empty-state"><i class="fas fa-database"></i><h3>No data available</h3></div></div></div>';
+            return;
+        }
+
+        // Render each item as a clean key-value card
+        body.innerHTML = `<div class="config-kv-grid">` + items.map((item, idx) => {
+            const entries = Object.entries(item).filter(([k]) => !k.startsWith('.'));
+            if (!entries.length) return '';
+            // Try to find a meaningful title for the card
+            const nameKey = entries.find(([k]) => ['name','address','server','interface','chain','type','comment'].includes(k));
+            const cardTitle = nameKey ? `${nameKey[0]}: ${nameKey[1]}` : `Entry ${idx + 1}`;
+            const rows = entries.map(([k, v]) => {
+                const vs = String(v);
+                const valCls = vs === 'yes' || vs === 'true' ? 'val-yes'
+                             : vs === 'no' || vs === 'false' ? 'val-no'
+                             : /^[\d\.]+$/.test(vs) && vs.length < 15 ? 'val-num' : '';
+                return `<div class="config-kv-row">
+                    <span class="config-kv-key">${k}</span>
+                    <span class="config-kv-val ${valCls}">${vs || '—'}</span>
+                </div>`;
+            }).join('');
+            return `<div class="config-kv-card">
+                <div class="config-kv-card-title"><i class="fas ${sec.icon}" style="margin-right:6px;color:var(--blue)"></i>${cardTitle}</div>
+                ${rows}
+            </div>`;
+        }).join('') + `</div>`;
+    } catch(e) {
+        const body = document.getElementById('configDetailBody');
+        if (body) body.innerHTML = `<div class="card"><div class="card-body"><div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error loading data</h3><p>${e.message}</p></div></div></div>`;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════
+   TERMINAL
+   ══════════════════════════════════════════════════════════ */
+function renderTerminal() {
+    document.getElementById('pageContent').innerHTML = `
+    <div class="fade-in">
+        <div class="card mb-20"><div class="card-header"><span class="card-title"><i class="fas fa-terminal"></i> MikroTik RouterOS Console</span></div>
+        <div class="card-body no-pad">
+            <div class="terminal">
+                <div class="terminal-header"><div class="terminal-dot red"></div><div class="terminal-dot yellow"></div><div class="terminal-dot green"></div><span style="color:var(--txt3);font-size:11px;margin-left:8px;font-family:var(--font-mono)">RouterOS API Console</span></div>
+                <div class="terminal-output" id="terminalOutput" style="min-height:400px;max-height:580px">
+                    <div><span class="log-info">Next Gen Pro — RouterOS API Console</span></div>
+                    <div><span class="log-info">Type RouterOS API commands (e.g. /system/resource/print)</span></div>
+                    <div><span class="log-warn">${selectedRouter?'Router connected. Ready.':'⚠ No router connected.'}</span></div><div>&nbsp;</div>
+                </div>
+                <div class="terminal-input-row"><span>❯</span><input type="text" id="terminalInput" placeholder="Enter RouterOS command..." onkeydown="if(event.key==='Enter')executeCommand()"></div>
+            </div>
+        </div></div>
+        <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-book-open"></i> Quick Commands</span></div><div class="card-body"><div style="display:flex;flex-wrap:wrap;gap:7px">${
+            ['/system/resource/print','/system/identity/print','/interface/print','/ip/address/print','/ip/route/print','/ip/dns/print','/ip/firewall/filter/print','/ip/dhcp-server/lease/print','/user/print','/ip/service/print','/log/print','/system/clock/print','/interface/wireless/registration-table/print','/ip/arp/print'].map(cmd=>`<button class="btn btn-secondary btn-sm" onclick="document.getElementById('terminalInput').value='${cmd}';executeCommand()">${cmd}</button>`).join('')
+        }</div></div></div>
+    </div>`;
+    document.getElementById('terminalInput')?.focus();
+}
+let _cmdRunning = false;
+async function executeCommand() {
+    if (_cmdRunning) return; // prevent double-submit while waiting
+    const input = document.getElementById('terminalInput');
+    const output = document.getElementById('terminalOutput');
+    const cmd = input.value.trim();
+    if (!cmd) return;
+    if (!selectedRouter) return showToast('Connect a router first','error');
+    output.innerHTML += `<div><span style="color:var(--green)">❯</span> <span style="color:var(--txt1)">${cmd}</span></div>`;
+    input.value = '';
+    input.disabled = true;
+    _cmdRunning = true;
+    // Show inline spinner while waiting
+    const loadingId = 'cmdLoading_' + Date.now();
+    output.innerHTML += `<div id="${loadingId}" style="color:var(--txt3)"><span class="spinner"></span> Running…</div>`;
+    output.scrollTop = output.scrollHeight;
+    try {
+        const data = await apiCall(`/api/router/${selectedRouter}/command`,{method:'POST',body:{command:cmd}});
+        document.getElementById(loadingId)?.remove();
+        if (data.result&&data.result.length>0) {
+            data.result.forEach(item=>{
+                Object.entries(item).forEach(([k,v])=>{ if(!k.startsWith('.')) output.innerHTML+=`<div>  <span style="color:var(--cyan)">${k}</span>: <span style="color:var(--txt2)">${v}</span></div>`; });
+                output.innerHTML+='<div>&nbsp;</div>';
+            });
+        } else output.innerHTML+='<div><span class="log-info">Command executed (no output)</span></div>';
+    } catch(e) {
+        document.getElementById(loadingId)?.remove();
+        output.innerHTML+=`<div><span class="log-error">Error: ${e.message}</span></div>`;
+    }
+    output.innerHTML+='<div>&nbsp;</div>';
+    output.scrollTop=output.scrollHeight;
+    input.disabled = false;
+    input.focus();
+    _cmdRunning = false;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SETTINGS
+   ══════════════════════════════════════════════════════════ */
+function renderSettings() {
+    document.getElementById('pageContent').innerHTML = `
+    <div class="fade-in">
+        <div class="grid-2 mb-20">
+            <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-lock"></i> Change Password</span></div>
+            <div class="card-body">
+                <div class="form-group"><label>Current Password</label><input type="password" class="form-input" id="oldPassword" placeholder="Current password"></div>
+                <div class="form-group"><label>New Password</label><input type="password" class="form-input" id="newPassword" placeholder="New password"></div>
+                <div class="form-group"><label>Confirm New Password</label><input type="password" class="form-input" id="confirmPassword" placeholder="Confirm password"></div>
+                <button class="btn btn-primary btn-full" onclick="changePassword()"><i class="fas fa-key"></i> Update Password</button>
+            </div></div>
+
+            <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-user-edit"></i> Change Username</span></div>
+            <div class="card-body">
+                <div class="form-group"><label>New Username</label><input type="text" class="form-input" id="newUsername" placeholder="New username (min 3 chars)"></div>
+                <div class="form-group"><label>Confirm with Password</label><input type="password" class="form-input" id="usernamePassword" placeholder="Current password"></div>
+                <button class="btn btn-primary btn-full" onclick="changeUsername()"><i class="fas fa-user-edit"></i> Update Username</button>
+            </div></div>
+        </div>
+
+        <div class="card mb-20"><div class="card-header"><span class="card-title"><i class="fas fa-users"></i> Active Sessions</span><button class="btn btn-secondary btn-sm" onclick="loadSettingsUsers()"><i class="fas fa-sync-alt"></i></button></div>
+        <div class="card-body no-pad" id="settingsUsersList"><div style="padding:20px;text-align:center"><span class="spinner"></span></div></div></div>
+
+        <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-trash"></i> Data Management</span></div>
+        <div class="card-body">
+            <div style="display:flex;flex-wrap:wrap;gap:10px">
+                <button class="btn btn-danger" onclick="if(confirm('Clear all logs?'))clearHistory('logs')"><i class="fas fa-scroll"></i> Clear Logs</button>
+                <button class="btn btn-danger" onclick="if(confirm('Clear all alerts?'))clearHistory('alerts')"><i class="fas fa-bell"></i> Clear Alerts</button>
+                <button class="btn btn-danger" onclick="if(confirm('Clear ALL history? This cannot be undone.'))clearHistory('all')"><i class="fas fa-database"></i> Clear All History</button>
+            </div>
+        </div></div>
+    </div>`;
+    loadSettingsUsers();
+}
+
+async function loadSettingsUsers() {
+    try {
+        const data = await apiCall('/api/admin/active-users');
+        const div = document.getElementById('settingsUsersList');
+        if (!div) return;
+        if (data.users.length===0) { div.innerHTML='<div class="empty-state"><i class="fas fa-users"></i><h3>No active sessions</h3></div>'; return; }
+        div.innerHTML=`<div>${data.users.map(u=>`
+            <div class="active-user-row">
+                <div class="active-user-avatar">${(u.username||'?')[0].toUpperCase()}</div>
+                <div class="active-user-info">
+                    <div class="active-user-name">${u.username}</div>
+                    <div class="active-user-detail"><i class="fas fa-map-marker-alt" style="margin-right:4px"></i>${u.ip||'Unknown'} &nbsp;·&nbsp; Logged in ${timeAgo(u.login_time)}</div>
+                </div>
+                <span class="badge badge-success"><i class="fas fa-circle" style="font-size:7px"></i> Active</span>
+            </div>`).join('')}</div>`;
+    } catch(e) {}
+}
+
+async function changePassword() {
+    const old = document.getElementById('oldPassword').value;
+    const n = document.getElementById('newPassword').value;
+    const c = document.getElementById('confirmPassword').value;
+    if (!old||!n) return showToast('Fill all fields','error');
+    if (n!==c) return showToast('Passwords do not match','error');
+    try {
+        await apiCall('/api/user/change-password',{method:'POST',body:{old_password:old,new_password:n}});
+        showToast('Password changed successfully','success');
+        document.getElementById('oldPassword').value=''; document.getElementById('newPassword').value=''; document.getElementById('confirmPassword').value='';
+    } catch(e) {}
+}
+
+async function changeUsername() {
+    const nu = document.getElementById('newUsername').value.trim();
+    const pw = document.getElementById('usernamePassword').value;
+    if (!nu||!pw) return showToast('Fill all fields','error');
+    try {
+        const data = await apiCall('/api/user/change-username',{method:'POST',body:{new_username:nu,password:pw}});
+        showToast('Username changed to: '+data.username,'success');
+        document.getElementById('userName').textContent = data.username;
+        document.getElementById('userAvatar').textContent = data.username[0].toUpperCase();
+        document.getElementById('newUsername').value=''; document.getElementById('usernamePassword').value='';
+    } catch(e) {}
+}
+
+/* ══════════════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════════════ */
+async function init() {
+    try {
+        const status = await apiCall('/api/auth/status');
+        if (status.authenticated) {
+            document.getElementById('userName').textContent = status.username;
+            document.getElementById('userAvatar').textContent = status.username[0].toUpperCase();
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+            navigateTo('dashboard');
+            startAutoRefresh();
+        }
+    } catch(e) {}
+}
+
+init();
+</script>
+</body>
+</html>
