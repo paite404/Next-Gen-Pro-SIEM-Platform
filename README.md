@@ -15,6 +15,8 @@ This platform serves as my final year capstone engineering project submitted to 
 ---
 
 ## 🛠️ Core Functional Modules
+<img width="1165" height="550" alt="image" src="https://github.com/user-attachments/assets/569fd37a-8350-4215-a1f3-a21ec5abf7f5" />
+
 
 *   **Module I: Authentication and Session Management**  
     Secures administrative entry paths via cryptographic SHA-256 password verification, enforces 12-hour HTTP-only session tokens, and hosts a dedicated `login_history` audit pipeline tracking username, remote IP, host MAC addresses (resolved via local ARP sub-routines), timestamps, and user-agents.
