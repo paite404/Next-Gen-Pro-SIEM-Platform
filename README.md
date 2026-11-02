@@ -1,6 +1,9 @@
 # Next-Gen-Pro-SIEM-Platform
 A Python-engineered SIEM platform built on the Flask framework for real-time network telemetry monitoring, automated log analysis, and defensive security orchestration.
 
+<img width="983" height="489" alt="image" src="https://github.com/user-attachments/assets/60b5e72a-61bc-42a8-8e1e-d5a7fdbc78ca" />
+
+
 
 # Next Gen Pro: Network Security Management and SIEM Platform
 
